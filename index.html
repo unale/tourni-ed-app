@@ -370,6 +370,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
 
 <!-- STEP 1: A-DIVA (yatak başı hızlı değerlendirme) -->
 <div id="step1" class="step-content">
+  <div id="group-instr-step1"></div>
   <div class="card">
     <div class="card-header">🩸 A-DIVA Skalası <div class="badge">van Loon 2016</div></div>
     <div class="card-body">
@@ -861,7 +862,9 @@ function refreshGroupInstr(){
   const g=assignGroup(s.nxt);
   if(!g)return;
   const gi=gInstr[g];
-  document.getElementById('group-instr-step4').innerHTML=`<div class="card ${gi.cls}" style="margin-bottom:12px"><div class="card-header">${g==='A'?'🟢':'🔴'} ${gi.title}</div><div style="padding:14px 16px"><ol class="group-steps">${gi.steps.map((st,i)=>`<li><div class="step-num">${i+1}</div><span>${st}</span></li>`).join('')}</ol></div></div>`;
+  const html=`<div class="card ${gi.cls}" style="margin-bottom:12px"><div class="card-header">${g==='A'?'🟢':'🔴'} ${gi.title}</div><div style="padding:14px 16px"><ol class="group-steps">${gi.steps.map((st,i)=>`<li><div class="step-num">${i+1}</div><span>${st}</span></li>`).join('')}</ol></div></div>`;
+  document.getElementById('group-instr-step1').innerHTML=html;
+  document.getElementById('group-instr-step4').innerHTML=html;
 }
 
 function toggleKomp(val){
@@ -1167,7 +1170,7 @@ function initForm(){
   document.getElementById('komp-detail').style.display='none';
   document.getElementById('rand-display').style.background='var(--gray)';
   document.getElementById('rand-display').textContent='Hasta numarası atanınca belirlenir';
-  calcADIVA();swReset();applyRand(s.nxt);goStep(1);
+  calcADIVA();swReset();applyRand(s.nxt);refreshGroupInstr();goStep(1);
   document.getElementById('fab-sw').classList.add('show');
   document.getElementById('hdr-n').textContent=s.patients.filter(p=>!p.test_kaydi).length;
 }
