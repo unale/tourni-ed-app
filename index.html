@@ -342,22 +342,15 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
           <div class="check-option"><input type="checkbox" id="bby" value="BBY"><label for="bby">BBY</label></div>
           <div class="check-option"><input type="checkbox" id="mal" value="MAL"><label for="mal">Kanser</label></div>
           <div class="check-option"><input type="checkbox" id="yok" value="YOK"><label for="yok">Yok</label></div>
+          <div class="check-option"><input type="checkbox" id="kom_dig" value="Diğer" onchange="toggleKomDiger(this)"><label for="kom_dig">Diğer</label></div>
         </div>
+        <input type="text" id="komorbidite_diger" placeholder="Komorbiditeyi belirtin..." style="margin-top:8px;display:none">
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Aktif İlaç</label>
-          <div class="btn-select yes-no">
-            <div><input type="radio" name="ilac" id="il_e" value="1"><label for="il_e" class="yes-lbl">Var</label></div>
-            <div><input type="radio" name="ilac" id="il_h" value="0"><label for="il_h" class="no-lbl">Yok</label></div>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Antikoagülan</label>
-          <div class="btn-select yes-no">
-            <div><input type="radio" name="antikuag" id="ak_e" value="1"><label for="ak_e" class="yes-lbl">Var</label></div>
-            <div><input type="radio" name="antikuag" id="ak_h" value="0"><label for="ak_h" class="no-lbl">Yok</label></div>
-          </div>
+      <div class="form-group">
+        <label>Antikoagülan</label>
+        <div class="btn-select yes-no">
+          <div><input type="radio" name="antikuag" id="ak_e" value="1"><label for="ak_e" class="yes-lbl">Var</label></div>
+          <div><input type="radio" name="antikuag" id="ak_h" value="0"><label for="ak_h" class="no-lbl">Yok</label></div>
         </div>
       </div>
     </div>
@@ -608,7 +601,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
   <div class="card">
     <div class="card-header">💾 Veri Dışa Aktarma</div>
     <div class="card-body">
-      <button class="btn btn-primary btn-lg" onclick="exportCSV()">📥 CSV İndir</button>
+      <button class="btn btn-success btn-lg" onclick="exportXLS()">📊 Excel İndir (.xls)</button>
+      <button class="btn btn-primary btn-lg" onclick="exportCSV()" style="margin-top:8px">📥 CSV İndir</button>
       <button class="btn btn-outline btn-lg" onclick="exportJSON()" style="margin-top:8px">📦 JSON Yedek (Tam)</button>
     </div>
   </div>
@@ -695,6 +689,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
           <div><input type="radio" name="lab_tekrar" id="lt_h" value="0"><label for="lt_h" class="yes-lbl">Hayır</label></div>
           <div><input type="radio" name="lab_tekrar" id="lt_e" value="1"><label for="lt_e" class="no-lbl">Evet</label></div>
         </div>
+      </div>
+      <div class="form-group">
+        <label>Not <span style="font-size:10px;color:var(--text-light);font-weight:400;text-transform:none">(opsiyonel — hasta ile ilgili ek bilgi)</span></label>
+        <textarea id="lab_notu" rows="2" placeholder="Örn: numune geç geldi, hemoliz görsel olarak beklendi..." style="resize:vertical;font-size:14px"></textarea>
       </div>
       <div style="display:flex;gap:10px;margin-top:8px">
         <button class="btn btn-gray" style="flex:1" onclick="closeLabPanel()">İptal</button>
@@ -795,19 +793,30 @@ function goStep(n){
 function nextStep(n){if(n===5&&swR)swStop();if(!validateStep(n-1))return;if(n===4)refreshGroupInstr();if(n===5)buildSummary();goStep(n);}
 function prevStep(n){goStep(n);}
 
-function validateStep(s){
-  if(s===2){
-    if(!v('hasta_adi_soyadi')){toast('Hasta kodu girin','error');return false;}
-    if(!v('hemsire_deneyimi')&&v('hemsire_deneyimi')!=='0'){toast('Hemşire deneyimi girin','error');return false;}
+function toggleKomDiger(cb){
+  const inp=document.getElementById('komorbidite_diger');
+  inp.style.display=cb.checked?'block':'none';
+  if(!cb.checked)inp.value='';
+}
+
+function validateStep(st){
+  if(st===2){
+    if(!v('hasta_adi_soyadi')){toast('⚠️ Hasta kodu girilmedi','error');return false;}
+    if(!v('hemsire_deneyimi')&&v('hemsire_deneyimi')!=='0'){toast('⚠️ Hemşire deneyimi girilmedi','error');return false;}
   }
-  if(s===3){
-    if(!v('yas')||!document.querySelector('input[name=cinsiyet]:checked')||!v('boy')||!v('kilo')){toast('Zorunlu alanları doldurun','error');return false;}
-    if(!document.querySelector('input[name=triaj]:checked')){toast('Triaj kategorisi seçin','error');return false;}
+  if(st===3){
+    if(!document.querySelector('input[name=cinsiyet]:checked')){toast('⚠️ Cinsiyet seçilmedi','error');return false;}
+    if(!v('boy')){toast('⚠️ Boy girilmedi','error');return false;}
+    if(!v('kilo')){toast('⚠️ Kilo girilmedi','error');return false;}
+    if(!document.querySelector('input[name=triaj]:checked')){toast('⚠️ Triaj kategorisi seçilmedi','error');return false;}
   }
-  if(s===4){
+  if(st===4){
     const ka=document.querySelector('input[name=kan_alindi]:checked');
-    if(!ka){toast('Kan alma durumunu seçin','error');return false;}
-    if(ka.value==='1'&&!v('turnike_suresi')){toast('Turnike süresini girin','error');return false;}
+    if(!ka){toast('⚠️ Kan alma durumu seçilmedi','error');return false;}
+    if(ka.value==='1'&&!v('turnike_suresi')){toast('⚠️ Turnike süresi girilmedi','error');return false;}
+    if(!document.querySelector('input[name=vas]:checked')){toast('⚠️ VAS ağrı skoru seçilmedi','error');return false;}
+    if(!document.querySelector('input[name=deneme]:checked')){toast('⚠️ Deneme sayısı seçilmedi','error');return false;}
+    if(!document.querySelector('input[name=bolge]:checked')){toast('⚠️ Kanülasyon bölgesi seçilmedi','error');return false;}
   }
   return true;
 }
@@ -938,11 +947,15 @@ function savePatient(){
   const cin=document.querySelector('input[name=cinsiyet]:checked');
   const tr=document.querySelector('input[name=triaj]:checked');
   const ka=document.querySelector('input[name=kan_alindi]:checked');
-  const il=document.querySelector('input[name=ilac]:checked');
   const ak=document.querySelector('input[name=antikuag]:checked');
   const dn=document.querySelector('input[name=deneme]:checked');
   const bl=document.querySelector('input[name=bolge]:checked');
-  const kom=['dm','htn','kalp','bby','mal','yok'].filter(id=>document.getElementById(id).checked).map(id=>document.getElementById(id).value).join('|');
+  const komIds=['dm','htn','kalp','bby','mal','yok','kom_dig'];
+  const komVals=komIds.filter(id=>document.getElementById(id).checked).map(id=>{
+    if(id==='kom_dig'){const t=v('komorbidite_diger');return t?'Diğer:'+t:'Diğer';}
+    return document.getElementById(id).value;
+  });
+  const kom=komVals.join('|');
   const tests=['t_hgm','t_bkm','t_kog','t_kgr','t_idr'].filter(id=>document.getElementById(id).checked).map(id=>document.getElementById(id).value).join('|');
   const adiva={};for(let i=1;i<=5;i++){const c=document.querySelector(`input[name=adiva${i}]:checked`);adiva[i]=c?parseInt(c.value):'';}
   const at=parseInt(document.getElementById('adiva-total').textContent)||0;
@@ -954,7 +967,7 @@ function savePatient(){
     hemsire_deneyimi:v('hemsire_deneyimi'),grup:g||'',kan_alindi:ka?ka.value:'',
     yas:v('yas'),cinsiyet:cin?cin.value:'',boy:v('boy'),kilo:v('kilo'),vki:v('vki'),
     basvuru_sikayeti:skVal,triaj:tr?tr.value:'',
-    komorbidite:kom,ilac_kullanimi:il?il.value:'',antikuagulan:ak?ak.value:'',
+    komorbidite:kom,ilac_kullanimi:'',antikuagulan:ak?ak.value:'',
     adiva1:adiva[1],adiva2:adiva[2],adiva3:adiva[3],adiva4:adiva[4],adiva5:adiva[5],
     adiva_toplam:at,adiva_zor:at>=2?1:0,
     deneme_sayisi:dn?dn.value:'',kanulasyon_bolgesi:bl?bl.value:'',
@@ -983,6 +996,7 @@ function openLabPanel(id){
   sv('lab_gecersizlik',pt.lab_gecersizlik||'');
   sv('lab_k',pt.potasyum||'');sv('lab_ldh',pt.ldh||'');
   sv('lab_hgb',pt.hgb||'');sv('lab_hct',pt.hematokrit||'');
+  sv('lab_notu',pt.lab_notu||'');
   ['lr_h','lr_e'].forEach(id=>document.getElementById(id).checked=false);
   ['lt_h','lt_e'].forEach(id=>document.getElementById(id).checked=false);
   if(pt.numune_ret!==''){const el=document.getElementById(pt.numune_ret==='1'?'lr_e':'lr_h');if(el)el.checked=true;}
@@ -1003,6 +1017,7 @@ function saveLabData(){
   const lt=document.querySelector('input[name=lab_tekrar]:checked');
   pt.numune_ret=lr?lr.value:'';
   pt.tekrar_kan_alimi=lt?lt.value:'';
+  pt.lab_notu=v('lab_notu');
   pt.lab_girildi=true;
   save();closeLabPanel();renderList();
   toast(`#${pt.sira_no} lab kaydedildi ✓`,'success');
@@ -1114,12 +1129,23 @@ async function downloadFile(filename,content,mime){
 function exportCSV(){
   const real=s.patients.filter(p=>!p.test_kaydi);
   if(!real.length){toast(s.patients.length?'Yalnızca deneme kaydı var; dışa aktarılmadı':'Veri yok','error');return;}
-  const cols=['sira_no','hasta_adi_soyadi','hasta_dosya_no','tarih','saat','hemsire_deneyimi','grup','kan_alindi','yas','cinsiyet','boy','kilo','vki','basvuru_sikayeti','triaj','komorbidite','ilac_kullanimi','antikuagulan','adiva1','adiva2','adiva3','adiva4','adiva5','adiva_toplam','adiva_zor','deneme_sayisi','kanulasyon_bolgesi','turnike_suresi','turnike_60sn','siparis_testler','vas','komp_var','komplikasyon','komp_aciklama','hi_skala','hi_binary','lab_gecersizlik','numune_ret','tekrar_kan_alimi','potasyum','ldh','hgb','hematokrit','notlar'];
+  const cols=['sira_no','hasta_adi_soyadi','hasta_dosya_no','tarih','saat','hemsire_deneyimi','grup','kan_alindi','yas','cinsiyet','boy','kilo','vki','basvuru_sikayeti','triaj','komorbidite','ilac_kullanimi','antikuagulan','adiva1','adiva2','adiva3','adiva4','adiva5','adiva_toplam','adiva_zor','deneme_sayisi','kanulasyon_bolgesi','turnike_suresi','turnike_60sn','siparis_testler','vas','komp_var','komplikasyon','komp_aciklama','hi_skala','hi_binary','lab_gecersizlik','numune_ret','tekrar_kan_alimi','potasyum','ldh','hgb','hematokrit','notlar','lab_notu'];
   const cell=val=>{const str=String(val??'');return /[",\n\r]/.test(str)?'"'+str.replace(/"/g,'""')+'"':str;};
   const rows=real.map(pt=>cols.map(c=>cell(pt[c])).join(','));
   const csv='\ufeff'+cols.join(',')+'\n'+rows.join('\n');
   const fn=`TOURNI-ED_${new Date().toLocaleDateString('tr-TR').replace(/\./g,'-')}_n${real.length}.csv`;
   downloadFile(fn,csv,'text/csv;charset=utf-8').then(ok=>{if(ok){toast('CSV hazır ✓','success');document.getElementById('backup-banner').classList.remove('show');}});
+}
+function exportXLS(){
+  const real=s.patients.filter(p=>!p.test_kaydi);
+  if(!real.length){toast(s.patients.length?'Yalnızca deneme kaydı var':'Veri yok','error');return;}
+  const cols=['sira_no','hasta_adi_soyadi','hasta_dosya_no','tarih','saat','hemsire_deneyimi','grup','kan_alindi','yas','cinsiyet','boy','kilo','vki','basvuru_sikayeti','triaj','komorbidite','ilac_kullanimi','antikuagulan','adiva1','adiva2','adiva3','adiva4','adiva5','adiva_toplam','adiva_zor','deneme_sayisi','kanulasyon_bolgesi','turnike_suresi','turnike_60sn','siparis_testler','vas','komp_var','komplikasyon','komp_aciklama','hi_skala','hi_binary','lab_gecersizlik','numune_ret','tekrar_kan_alimi','potasyum','ldh','hgb','hematokrit','notlar','lab_notu'];
+  const esc=t=>String(t??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const hdr='<tr>'+cols.map(c=>`<th>${esc(c)}</th>`).join('')+'</tr>';
+  const rows=real.map(pt=>'<tr>'+cols.map(c=>`<td>${esc(pt[c])}</td>`).join('')+'</tr>').join('');
+  const xls=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>TOURNI-ED</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>${hdr}${rows}</table></body></html>`;
+  const fn=`TOURNI-ED_${new Date().toLocaleDateString('tr-TR').replace(/\./g,'-')}_n${real.length}.xls`;
+  downloadFile(fn,xls,'application/vnd.ms-excel;charset=UTF-8').then(ok=>{if(ok)toast('Excel hazır ✓','success');});
 }
 function exportJSON(){
   const fn=`TOURNI-ED_yedek_${new Date().toLocaleDateString('tr-TR').replace(/\./g,'-')}.json`;
@@ -1147,7 +1173,7 @@ function showModal(title,msg,cb){
   document.getElementById('modal-msg').textContent=msg;
   modalCb=cb;
   const btn=document.getElementById('modal-confirm-btn');
-  btn.onclick=()=>{closeModal();if(modalCb)modalCb();};
+  btn.onclick=()=>{const cb=modalCb;closeModal();if(cb)cb();};
   document.getElementById('modal-overlay').style.display='flex';
 }
 function closeModal(){
@@ -1168,6 +1194,8 @@ function initForm(){
   document.querySelectorAll('input[type=checkbox]').forEach(c=>c.checked=false);
   sv('lab_gecersizlik','');
   document.getElementById('sikayeti_diger').style.display='none';
+  document.getElementById('komorbidite_diger').style.display='none';
+  sv('komorbidite_diger','');
   document.getElementById('komp-detail').style.display='none';
   document.getElementById('rand-display').style.background='var(--gray)';
   document.getElementById('rand-display').textContent='Hasta numarası atanınca belirlenir';
