@@ -742,9 +742,10 @@ try{
 function load(){
   try{const d=localStorage.getItem(STORE);if(d)s=JSON.parse(d);}catch(e){}
   if(!s.patients)s.patients=[];
-  if(!s.nxt)s.nxt=(s.patients.length?Math.max(...s.patients.map(p=>p.sira_no||0))+1:1);
+  if(!s.patients.length)s.nxt=1;
+  else if(!s.nxt)s.nxt=Math.max(...s.patients.map(p=>p.sira_no||0))+1;
 }
-function save(){localStorage.setItem(STORE,JSON.stringify(s));checkBackup();updateEnrollBar();}
+function save(){if(!s.patients.length)s.nxt=1;localStorage.setItem(STORE,JSON.stringify(s));checkBackup();updateEnrollBar();}
 function updateEnrollBar(){
   const real=s.patients.filter(p=>!p.test_kaydi);
   const total=real.length;
