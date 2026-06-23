@@ -624,7 +624,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
     <div class="card-body" style="font-size:13px;line-height:2;color:var(--text-light)">
       <div><b>NCT:</b> NCT07617103</div>
       <div><b>Etik:</b> 09.2026.829</div>
-      <div><b>Uygulama:</b> v3.3</div>
+      <div><b>Uygulama:</b> v3.5</div>
       <div><b>Hedef n:</b> 792 (396A/396B)</div>
     </div>
   </div>
@@ -682,6 +682,40 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
           <input type="number" id="lab_hct" step="0.1" placeholder="40.2">
         </div>
       </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>RBC (10⁶/µL)</label>
+          <input type="number" id="lab_rbc" step="0.01" placeholder="4.80">
+        </div>
+        <div class="form-group"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>ALT (U/L)</label>
+          <input type="number" id="lab_alt" placeholder="35">
+        </div>
+        <div class="form-group">
+          <label>AST (U/L)</label>
+          <input type="number" id="lab_ast" placeholder="28">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Total Bilirubin (mg/dL)</label>
+          <input type="number" id="lab_tbil" step="0.01" placeholder="0.80" oninput="calcIndirek()">
+        </div>
+        <div class="form-group">
+          <label>Direk Bilirubin (mg/dL)</label>
+          <input type="number" id="lab_dbil" step="0.01" placeholder="0.20" oninput="calcIndirek()">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>İndirek Bilirubin (mg/dL) <span style="font-size:10px;color:var(--text-light);font-weight:400;text-transform:none">— otomatik</span></label>
+          <input type="number" id="lab_ibil" step="0.01" class="input-readonly" readonly placeholder="—">
+        </div>
+        <div class="form-group"></div>
+      </div>
       <div class="form-group">
         <label>Numune Lab Tarafından Reddedildi mi?</label>
         <div class="btn-select yes-no">
@@ -736,13 +770,9 @@ let s={patients:[],nxt:1};
 let labTargetId=null;
 let editId=null;
 
-// --- Güncellik güvencesi ---
-// Önceki sürümlerden kalan Service Worker / önbellek, yeni sürümün yüklenmesini
-// engelleyip eski hatalı kodu sunabilir. Aktif güncelleme döneminde temizliyoruz.
-try{
-  if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});}
-  if(window.caches&&caches.keys){caches.keys().then(ks=>ks.forEach(k=>caches.delete(k))).catch(()=>{});}
-}catch(e){}
+// --- Offline desteği ---
+// Cache temizleyici kaldırıldı (v3.5). Safari/iOS "Ana Ekrana Ekle" ile
+// uygulama ilk açılıştan sonra internetsiz de çalışır.
 
 function load(){
   try{const d=localStorage.getItem(STORE);if(d)s=JSON.parse(d);}catch(e){}
@@ -996,6 +1026,12 @@ function savePatient(){
     ldh:origPt?origPt.ldh:'',
     hgb:origPt?origPt.hgb:'',
     hematokrit:origPt?origPt.hematokrit:'',
+    rbc:origPt?origPt.rbc:'',
+    alt:origPt?origPt.alt:'',
+    ast:origPt?origPt.ast:'',
+    tbil:origPt?origPt.tbil:'',
+    dbil:origPt?origPt.dbil:'',
+    ibil:origPt?origPt.ibil:'',
     lab_notu:origPt?origPt.lab_notu:'',
     notlar:v('notlar'),
     test_kaydi:origPt?origPt.test_kaydi:false,
@@ -1023,6 +1059,9 @@ function openLabPanel(id){
   sv('lab_gecersizlik',pt.lab_gecersizlik||'');
   sv('lab_k',pt.potasyum||'');sv('lab_ldh',pt.ldh||'');
   sv('lab_hgb',pt.hgb||'');sv('lab_hct',pt.hematokrit||'');
+  sv('lab_rbc',pt.rbc||'');sv('lab_alt',pt.alt||'');sv('lab_ast',pt.ast||'');
+  sv('lab_tbil',pt.tbil||'');sv('lab_dbil',pt.dbil||'');sv('lab_ibil',pt.ibil||'');
+  calcIndirek();
   sv('lab_notu',pt.lab_notu||'');
   ['lr_h','lr_e'].forEach(id=>document.getElementById(id).checked=false);
   ['lt_h','lt_e'].forEach(id=>document.getElementById(id).checked=false);
@@ -1032,6 +1071,16 @@ function openLabPanel(id){
   window.scrollTo(0,0);
 }
 function closeLabPanel(){document.getElementById('lab-panel').style.display='none';labTargetId=null;}
+function calcIndirek(){
+  const t=parseFloat(document.getElementById('lab_tbil').value);
+  const d=parseFloat(document.getElementById('lab_dbil').value);
+  if(!isNaN(t)&&!isNaN(d)){
+    const ind=Math.max(0,t-d).toFixed(2);
+    document.getElementById('lab_ibil').value=ind;
+  }else{
+    document.getElementById('lab_ibil').value='';
+  }
+}
 function saveLabData(){
   const hi=document.querySelector('input[name=lab_hi]:checked');
   if(!hi){toast('HI değeri seçin','error');return;}
@@ -1040,6 +1089,8 @@ function saveLabData(){
   pt.lab_gecersizlik=v('lab_gecersizlik');
   pt.potasyum=v('lab_k');pt.ldh=v('lab_ldh');
   pt.hgb=v('lab_hgb');pt.hematokrit=v('lab_hct');
+  pt.rbc=v('lab_rbc');pt.alt=v('lab_alt');pt.ast=v('lab_ast');
+  pt.tbil=v('lab_tbil');pt.dbil=v('lab_dbil');pt.ibil=v('lab_ibil');
   const lr=document.querySelector('input[name=lab_ret]:checked');
   const lt=document.querySelector('input[name=lab_tekrar]:checked');
   pt.numune_ret=lr?lr.value:'';
@@ -1156,7 +1207,7 @@ async function downloadFile(filename,content,mime){
 function exportCSV(){
   const real=s.patients.filter(p=>!p.test_kaydi);
   if(!real.length){toast(s.patients.length?'Yalnızca deneme kaydı var; dışa aktarılmadı':'Veri yok','error');return;}
-  const cols=['sira_no','hasta_adi_soyadi','hasta_dosya_no','tarih','saat','hemsire_deneyimi','grup','kan_alindi','yas','cinsiyet','boy','kilo','vki','basvuru_sikayeti','triaj','komorbidite','ilac_kullanimi','antikuagulan','adiva1','adiva2','adiva3','adiva4','adiva5','adiva_toplam','adiva_zor','deneme_sayisi','kanulasyon_bolgesi','turnike_suresi','turnike_60sn','siparis_testler','vas','komp_var','komplikasyon','komp_aciklama','hi_skala','hi_binary','lab_gecersizlik','numune_ret','tekrar_kan_alimi','potasyum','ldh','hgb','hematokrit','notlar','lab_notu'];
+  const cols=['sira_no','hasta_adi_soyadi','hasta_dosya_no','tarih','saat','hemsire_deneyimi','grup','kan_alindi','yas','cinsiyet','boy','kilo','vki','basvuru_sikayeti','triaj','komorbidite','ilac_kullanimi','antikuagulan','adiva1','adiva2','adiva3','adiva4','adiva5','adiva_toplam','adiva_zor','deneme_sayisi','kanulasyon_bolgesi','turnike_suresi','turnike_60sn','siparis_testler','vas','komp_var','komplikasyon','komp_aciklama','hi_skala','hi_binary','lab_gecersizlik','numune_ret','tekrar_kan_alimi','potasyum','ldh','hgb','hematokrit','rbc','alt','ast','tbil','dbil','ibil','notlar','lab_notu'];
   const cell=val=>{const str=String(val??'');return /[",\n\r]/.test(str)?'"'+str.replace(/"/g,'""')+'"':str;};
   const rows=real.map(pt=>cols.map(c=>cell(pt[c])).join(','));
   const csv='\ufeff'+cols.join(',')+'\n'+rows.join('\n');
@@ -1166,7 +1217,7 @@ function exportCSV(){
 function exportXLS(){
   const real=s.patients.filter(p=>!p.test_kaydi);
   if(!real.length){toast(s.patients.length?'Yalnızca deneme kaydı var':'Veri yok','error');return;}
-  const cols=['sira_no','hasta_adi_soyadi','hasta_dosya_no','tarih','saat','hemsire_deneyimi','grup','kan_alindi','yas','cinsiyet','boy','kilo','vki','basvuru_sikayeti','triaj','komorbidite','ilac_kullanimi','antikuagulan','adiva1','adiva2','adiva3','adiva4','adiva5','adiva_toplam','adiva_zor','deneme_sayisi','kanulasyon_bolgesi','turnike_suresi','turnike_60sn','siparis_testler','vas','komp_var','komplikasyon','komp_aciklama','hi_skala','hi_binary','lab_gecersizlik','numune_ret','tekrar_kan_alimi','potasyum','ldh','hgb','hematokrit','notlar','lab_notu'];
+  const cols=['sira_no','hasta_adi_soyadi','hasta_dosya_no','tarih','saat','hemsire_deneyimi','grup','kan_alindi','yas','cinsiyet','boy','kilo','vki','basvuru_sikayeti','triaj','komorbidite','ilac_kullanimi','antikuagulan','adiva1','adiva2','adiva3','adiva4','adiva5','adiva_toplam','adiva_zor','deneme_sayisi','kanulasyon_bolgesi','turnike_suresi','turnike_60sn','siparis_testler','vas','komp_var','komplikasyon','komp_aciklama','hi_skala','hi_binary','lab_gecersizlik','numune_ret','tekrar_kan_alimi','potasyum','ldh','hgb','hematokrit','rbc','alt','ast','tbil','dbil','ibil','notlar','lab_notu'];
   const esc=t=>String(t??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const hdr='<tr>'+cols.map(c=>`<th>${esc(c)}</th>`).join('')+'</tr>';
   const rows=real.map(pt=>'<tr>'+cols.map(c=>`<td>${esc(pt[c])}</td>`).join('')+'</tr>').join('');
