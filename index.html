@@ -214,6 +214,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
   <button class="nav-btn" onclick="goTab('tab-export')" id="nbtn-export"><span>💾</span>Dışa Aktar</button>
 </div>
 
+<!-- DÜZENLEME MODU BANNER -->
+<div id="edit-banner" style="display:none;background:#e67e22;color:white;padding:10px 16px;text-align:center;font-weight:700;font-size:13px;position:sticky;top:0;z-index:99">
+  ✏️ DÜZENLEME MODU — <span id="edit-banner-text"></span>
+  <button onclick="cancelEdit()" style="background:rgba(255,255,255,.25);border:none;color:white;margin-left:12px;padding:4px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600">✖ İptal</button>
+</div>
+
 <!-- ========== TAB: YENİ KAYIT ========== -->
 <div id="tab-form">
 <div id="main">
@@ -285,7 +291,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
     <div class="card-body">
       <div class="form-row">
         <div class="form-group">
-          <label>Yaş <span class="req">*</span></label>
+          <label>Yaş</label>
           <input type="number" id="yas" min="18" max="120" placeholder="45" oninput="calcBMI()">
         </div>
         <div class="form-group">
@@ -563,7 +569,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
   </div>
   <div style="display:flex;gap:10px">
     <button class="btn btn-gray btn-lg" style="width:30%" onclick="prevStep(4)">← Geri</button>
-    <button class="btn btn-success btn-lg" style="width:70%" onclick="savePatient()">💾 Kaydet</button>
+    <button id="save-btn-step5" class="btn btn-success btn-lg" style="width:70%" onclick="savePatient()">💾 Kaydet</button>
   </div>
 </div>
 
@@ -618,7 +624,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
     <div class="card-body" style="font-size:13px;line-height:2;color:var(--text-light)">
       <div><b>NCT:</b> NCT07617103</div>
       <div><b>Etik:</b> 09.2026.829</div>
-      <div><b>Uygulama:</b> v3.2</div>
+      <div><b>Uygulama:</b> v3.3</div>
       <div><b>Hedef n:</b> 792 (396A/396B)</div>
     </div>
   </div>
@@ -728,6 +734,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
 const STORE='tourniED_v3';
 let s={patients:[],nxt:1};
 let labTargetId=null;
+let editId=null;
 
 // --- Güncellik güvencesi ---
 // Önceki sürümlerden kalan Service Worker / önbellek, yeni sürümün yüklenmesini
@@ -916,7 +923,8 @@ function updateClock(){
 setInterval(updateClock,10000);
 
 function buildSummary(){
-  const g=assignGroup(s.nxt);
+  const editPt=editId?s.patients.find(p=>p.id===editId):null;
+  const g=editPt?editPt.grup:assignGroup(s.nxt);
   const sk=document.querySelector('input[name=sikayeti]:checked');
   const skVal=sk?(sk.value==='Diğer'?v('sikayeti_diger'):sk.value):'—';
   const cin=document.querySelector('input[name=cinsiyet]:checked');
@@ -940,7 +948,8 @@ function buildSummary(){
 }
 
 function savePatient(){
-  const g=assignGroup(s.nxt);
+  const origPt=editId?s.patients.find(p=>p.id===editId):null;
+  const g=origPt?origPt.grup:assignGroup(s.nxt);
   const sk=document.querySelector('input[name=sikayeti]:checked');
   const skVal=sk?(sk.value==='Diğer'?v('sikayeti_diger'):sk.value):'';
   const cin=document.querySelector('input[name=cinsiyet]:checked');
@@ -961,7 +970,8 @@ function savePatient(){
   const ts=parseInt(v('turnike_suresi'))||0;
 
   const pt={
-    id:Date.now(),sira_no:s.nxt,
+    id:origPt?origPt.id:Date.now(),
+    sira_no:origPt?origPt.sira_no:s.nxt,
     hasta_adi_soyadi:v('hasta_adi_soyadi'),hasta_dosya_no:v('hasta_dosya_no'),tarih:v('tarih'),saat:v('saat'),
     hemsire_deneyimi:v('hemsire_deneyimi'),grup:g||'',kan_alindi:ka?ka.value:'',
     yas:v('yas'),cinsiyet:cin?cin.value:'',boy:v('boy'),kilo:v('kilo'),vki:v('vki'),
@@ -976,14 +986,32 @@ function savePatient(){
     komp_var:document.querySelector('input[name=komp_var]:checked')?document.querySelector('input[name=komp_var]:checked').value:'',
     komplikasyon:['kp_hem','kp_sin','kp_vaz','kp_art','kp_dig'].filter(id=>document.getElementById(id).checked).map(id=>document.getElementById(id).value).join('|'),
     komp_aciklama:v('komp_aciklama'),
-    hi_skala:'',hi_binary:'',lab_gecersizlik:'',
-    numune_ret:'',tekrar_kan_alimi:'',
-    potasyum:'',ldh:'',hgb:'',hematokrit:'',
-    notlar:v('notlar'),test_kaydi:false,lab_girildi:false
+    // Lab alanları: düzenleme modunda orijinal değerler korunur
+    hi_skala:origPt?origPt.hi_skala:'',
+    hi_binary:origPt?origPt.hi_binary:'',
+    lab_gecersizlik:origPt?origPt.lab_gecersizlik:'',
+    numune_ret:origPt?origPt.numune_ret:'',
+    tekrar_kan_alimi:origPt?origPt.tekrar_kan_alimi:'',
+    potasyum:origPt?origPt.potasyum:'',
+    ldh:origPt?origPt.ldh:'',
+    hgb:origPt?origPt.hgb:'',
+    hematokrit:origPt?origPt.hematokrit:'',
+    lab_notu:origPt?origPt.lab_notu:'',
+    notlar:v('notlar'),
+    test_kaydi:origPt?origPt.test_kaydi:false,
+    lab_girildi:origPt?origPt.lab_girildi:false
   };
-  s.patients.push(pt);s.nxt++;save();
-  toast(`Hasta #${pt.sira_no} kaydedildi ✓`,'success');
-  setTimeout(()=>initForm(),1200);
+  if(origPt){
+    const idx=s.patients.findIndex(p=>p.id===editId);
+    if(idx!==-1)s.patients[idx]=pt;
+    editId=null;updateEditBanner();save();
+    toast(`Hasta #${pt.sira_no} güncellendi ✓`,'success');
+    setTimeout(()=>{initForm();goTab('tab-list');},1200);
+  }else{
+    s.patients.push(pt);s.nxt++;save();
+    toast(`Hasta #${pt.sira_no} kaydedildi ✓`,'success');
+    setTimeout(()=>initForm(),1200);
+  }
 }
 
 function openLabPanel(id){
@@ -1049,7 +1077,7 @@ function renderList(){
         <div class="pt-meta">${pt.tarih} ${pt.saat} · ${pt.turnike_suresi||'?'}sn · A-DIVA:${pt.adiva_toplam} · ${pt.lab_girildi?'Lab ✓':'⏳ Lab bekleniyor'}</div>
       </div>
       <div class="pt-hi ${pt.lab_girildi?(pt.hi_binary===1?'hi-pos':'hi-neg'):'hi-empty'}">${pt.lab_girildi?(hiL[pt.hi_skala]||'—'):'—'}</div>
-      ${selectMode?'':`<button class="btn btn-sm btn-danger" onclick="deletePt(${pt.id})" style="margin-left:6px;min-width:44px;min-height:44px">🗑</button>`}
+      ${selectMode?'':`<button class="btn btn-sm btn-outline" onclick="openEditForm(${pt.id})" style="min-width:44px;min-height:44px" title="Düzenle">✏️</button><button class="btn btn-sm btn-danger" onclick="deletePt(${pt.id})" style="margin-left:4px;min-width:44px;min-height:44px">🗑</button>`}
     </div>`).join('');
 }
 function exitSelectMode(){
@@ -1183,7 +1211,152 @@ function closeModal(){
 let toastT;
 function toast(msg,type=''){const e=document.getElementById('toast');e.textContent=msg;e.className='show';if(type)e.classList.add(type);clearTimeout(toastT);toastT=setTimeout(()=>{e.className='';},3000);}
 
+function updateEditBanner(){
+  const banner=document.getElementById('edit-banner');
+  const btn=document.getElementById('save-btn-step5');
+  if(editId){
+    const pt=s.patients.find(p=>p.id===editId);
+    if(pt){
+      banner.style.display='block';
+      document.getElementById('edit-banner-text').textContent=`Hasta #${pt.sira_no} — ${pt.hasta_adi_soyadi||'—'}`;
+      if(btn)btn.textContent='💾 Güncelle';
+    }
+  }else{
+    banner.style.display='none';
+    if(btn)btn.textContent='💾 Kaydet';
+  }
+}
+
+function cancelEdit(){
+  editId=null;
+  toast('Düzenleme iptal edildi','');
+  initForm();
+}
+
+function openEditForm(id){
+  const pt=s.patients.find(p=>p.id===id);
+  if(!pt)return;
+  editId=id;
+
+  // Tüm radio ve checkbox'ları temizle
+  document.querySelectorAll('input[type=radio]').forEach(r=>r.checked=false);
+  document.querySelectorAll('input[type=checkbox]').forEach(c=>c.checked=false);
+
+  // Metin alanları
+  sv('sira_no',pt.sira_no);
+  sv('hasta_adi_soyadi',pt.hasta_adi_soyadi||'');
+  sv('hasta_dosya_no',pt.hasta_dosya_no||'');
+  sv('tarih',pt.tarih||'');
+  sv('saat',pt.saat||'');
+  sv('hemsire_deneyimi',pt.hemsire_deneyimi||'');
+  sv('yas',pt.yas||'');
+  sv('boy',pt.boy||'');
+  sv('kilo',pt.kilo||'');
+  sv('vki',pt.vki||'');
+  sv('notlar',pt.notlar||'');
+  sv('turnike_suresi',pt.turnike_suresi||'');
+
+  // Cinsiyet
+  if(pt.cinsiyet){const el=document.querySelector(`input[name=cinsiyet][value="${pt.cinsiyet}"]`);if(el)el.checked=true;}
+
+  // Triaj
+  if(pt.triaj!==undefined&&pt.triaj!==''){const el=document.querySelector(`input[name=triaj][value="${pt.triaj}"]`);if(el)el.checked=true;}
+
+  // Şikayet
+  document.getElementById('sikayeti_diger').style.display='none';sv('sikayeti_diger','');
+  if(pt.basvuru_sikayeti){
+    const match=document.querySelector(`input[name=sikayeti][value="${pt.basvuru_sikayeti}"]`);
+    if(match){match.checked=true;}
+    else{
+      const diger=document.querySelector('input[name=sikayeti][value="Diğer"]');
+      if(diger){diger.checked=true;sv('sikayeti_diger',pt.basvuru_sikayeti);document.getElementById('sikayeti_diger').style.display='block';}
+    }
+  }
+
+  // Komorbidite checkboxları
+  document.getElementById('komorbidite_diger').style.display='none';sv('komorbidite_diger','');
+  if(pt.komorbidite){
+    pt.komorbidite.split('|').forEach(item=>{
+      if(item.startsWith('Diğer')){
+        const el=document.getElementById('kom_dig');if(el)el.checked=true;
+        const txt=item.includes(':')?item.split(':').slice(1).join(':').trim():'';
+        if(txt){sv('komorbidite_diger',txt);document.getElementById('komorbidite_diger').style.display='block';}
+      }else{
+        const el=document.querySelector(`#step3 input[type=checkbox][value="${item}"]`);if(el)el.checked=true;
+      }
+    });
+  }
+
+  // Antikoagulan
+  if(pt.antikuagulan!==undefined&&pt.antikuagulan!==''){const el=document.querySelector(`input[name=antikuag][value="${pt.antikuagulan}"]`);if(el)el.checked=true;}
+
+  // A-DIVA
+  for(let i=1;i<=5;i++){
+    const val=pt['adiva'+i];
+    if(val!==undefined&&val!==''){const el=document.querySelector(`input[name=adiva${i}][value="${val}"]`);if(el)el.checked=true;}
+  }
+  calcADIVA();
+
+  // Kan alındı
+  if(pt.kan_alindi!==undefined&&pt.kan_alindi!==''){
+    const el=document.querySelector(`input[name=kan_alindi][value="${pt.kan_alindi}"]`);
+    if(el){el.checked=true;toggleStopwatch(parseInt(pt.kan_alindi));}
+  }
+
+  // VAS
+  if(pt.vas!==undefined&&pt.vas!==''){const el=document.querySelector(`input[name=vas][value="${pt.vas}"]`);if(el)el.checked=true;}
+
+  // Deneme sayısı
+  if(pt.deneme_sayisi!==undefined&&pt.deneme_sayisi!==''){const el=document.querySelector(`input[name=deneme][value="${pt.deneme_sayisi}"]`);if(el)el.checked=true;}
+
+  // Kanülasyon bölgesi
+  if(pt.kanulasyon_bolgesi!==undefined&&pt.kanulasyon_bolgesi!==''){const el=document.querySelector(`input[name=bolge][value="${pt.kanulasyon_bolgesi}"]`);if(el)el.checked=true;}
+
+  // Komplikasyon
+  document.getElementById('komp-detail').style.display='none';
+  if(pt.komp_var!==undefined&&pt.komp_var!==''){
+    const el=document.querySelector(`input[name=komp_var][value="${pt.komp_var}"]`);
+    if(el){el.checked=true;toggleKomp(pt.komp_var==='1');}
+    if(pt.komplikasyon){
+      pt.komplikasyon.split('|').forEach(kv=>{
+        const cb=document.getElementById('kp_'+kv.toLowerCase().replace(/\s/g,''));
+        // değere göre bul
+        const cbv=document.querySelector(`input[id^="kp_"][value="${kv}"]`);if(cbv)cbv.checked=true;
+      });
+    }
+    sv('komp_aciklama',pt.komp_aciklama||'');
+  }
+
+  // Sipariş testler
+  if(pt.siparis_testler){
+    const vals=pt.siparis_testler.split('|');
+    ['t_hgm','t_bkm','t_kog','t_kgr','t_idr'].forEach(tid=>{
+      const el=document.getElementById(tid);if(el&&vals.includes(el.value))el.checked=true;
+    });
+  }
+
+  // Grup göstergesi (orijinal grup korunur)
+  const d=document.getElementById('rand-display');
+  if(pt.grup==='A'){d.style.background='var(--green)';d.innerHTML='🟢 GRUP A — Erken Bırakma<br><span style="font-size:12px;font-weight:400">Sitrat tüpü dolunca sfingomanometreyi bırak</span>';}
+  else{d.style.background='var(--accent)';d.innerHTML='🔴 GRUP B — Geç Bırakma<br><span style="font-size:12px;font-weight:400">K₂EDTA (son tüp) dolana kadar sfingomanometreyi tut</span>';}
+
+  // Grup talimat kartları
+  const gi=gInstr[pt.grup];
+  if(gi){
+    const html=`<div class="card ${gi.cls}" style="margin-bottom:12px"><div class="card-header">${pt.grup==='A'?'🟢':'🔴'} ${gi.title}</div><div style="padding:14px 16px"><ol class="group-steps">${gi.steps.map((st,i)=>`<li><div class="step-num">${i+1}</div><span>${st}</span></li>`).join('')}</ol></div></div>`;
+    document.getElementById('group-instr-step1').innerHTML=html;
+    document.getElementById('group-instr-step4').innerHTML=html;
+  }
+
+  updateEditBanner();
+  swReset();
+  goTab('tab-form');
+  goStep(1);
+  toast(`#${pt.sira_no} düzenleme modu ✏️`,'warning');
+}
+
 function initForm(){
+  editId=null;updateEditBanner();
   const now=new Date();
   sv('tarih',now.toLocaleDateString('tr-TR'));
   sv('saat',now.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}));
