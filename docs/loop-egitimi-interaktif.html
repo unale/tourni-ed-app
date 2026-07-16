@@ -1,0 +1,663 @@
+<title>Loop Eğitimi — İnteraktif Rehber</title>
+<style>
+:root{
+  --bg:#FAF9F5;
+  --surface:#FFFFFF;
+  --ink:#22313C;
+  --muted:#5D6E7A;
+  --accent:#136F7E;
+  --accent-soft:#E3F0F2;
+  --mark-bg:#FFE566;
+  --mark-ink:#3A3000;
+  --danger:#B4472F;
+  --danger-soft:#F7E8E3;
+  --ok:#2E7D4F;
+  --ok-soft:#E5F2EA;
+  --line:#DFE3E0;
+  --code-bg:#F1F3F0;
+  --shadow:0 1px 4px rgba(34,49,60,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#14191D; --surface:#1C2329; --ink:#E4E9EC; --muted:#93A3AD;
+    --accent:#5BB8C4; --accent-soft:#1E3237;
+    --mark-bg:#57490F; --mark-ink:#FFE98F;
+    --danger:#E08064; --danger-soft:#3A241D;
+    --ok:#6CC493; --ok-soft:#1E3226;
+    --line:#323C43; --code-bg:#232C33;
+    --shadow:0 1px 4px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14191D; --surface:#1C2329; --ink:#E4E9EC; --muted:#93A3AD;
+  --accent:#5BB8C4; --accent-soft:#1E3237;
+  --mark-bg:#57490F; --mark-ink:#FFE98F;
+  --danger:#E08064; --danger-soft:#3A241D;
+  --ok:#6CC493; --ok-soft:#1E3226;
+  --line:#323C43; --code-bg:#232C33;
+  --shadow:0 1px 4px rgba(0,0,0,.4);
+}
+:root[data-theme="light"]{
+  --bg:#FAF9F5; --surface:#FFFFFF; --ink:#22313C; --muted:#5D6E7A;
+  --accent:#136F7E; --accent-soft:#E3F0F2;
+  --mark-bg:#FFE566; --mark-ink:#3A3000;
+  --danger:#B4472F; --danger-soft:#F7E8E3;
+  --ok:#2E7D4F; --ok-soft:#E5F2EA;
+  --line:#DFE3E0; --code-bg:#F1F3F0;
+  --shadow:0 1px 4px rgba(34,49,60,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto} *{transition:none!important;animation:none!important}}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:16.5px;line-height:1.65}
+h1,h2,h3{font-family:Georgia,"Iowan Old Style",Palatino,"Times New Roman",serif;
+  line-height:1.25;text-wrap:balance;margin:0 0 .5em}
+h1{font-size:2rem;font-weight:700}
+h2{font-size:1.45rem;margin-top:0}
+h3{font-size:1.12rem}
+p{margin:.4em 0 .9em}
+a{color:var(--accent)}
+mark{background:var(--mark-bg);color:var(--mark-ink);padding:.05em .25em;border-radius:3px}
+.wrap{max-width:760px;margin:0 auto;padding:0 20px 80px}
+
+header.hero{padding:44px 0 20px;border-bottom:3px solid var(--accent)}
+.eyebrow{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:10px}
+.hero p.lede{font-size:1.08rem;color:var(--muted);max-width:60ch}
+
+nav.toc{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px solid var(--line);
+  display:flex;gap:2px;overflow-x:auto;padding:6px 0;margin-bottom:34px}
+nav.toc a{flex:0 0 auto;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:600;
+  padding:7px 12px;border-radius:20px;white-space:nowrap}
+nav.toc a:hover,nav.toc a:focus-visible{background:var(--accent-soft);color:var(--accent)}
+
+section{margin-bottom:52px}
+.sec-num{display:inline-flex;align-items:center;gap:10px;margin-bottom:6px}
+.sec-num .n{background:var(--accent);color:var(--bg);font-weight:800;font-size:.8rem;
+  width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:inherit}
+
+table{border-collapse:collapse;width:100%;font-size:.92rem;margin:14px 0}
+.table-scroll{overflow-x:auto}
+th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+th{background:var(--accent-soft);color:var(--accent);font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px;box-shadow:var(--shadow);margin:16px 0}
+
+/* Sözlük terimi */
+.term{border-bottom:2px dotted var(--accent);cursor:help;position:relative;font-weight:600;color:var(--accent)}
+.term:focus{outline:2px solid var(--accent);outline-offset:2px}
+.term .tip{display:none;position:absolute;left:0;top:calc(100% + 6px);z-index:60;width:min(300px,78vw);
+  background:var(--ink);color:var(--bg);font-size:.82rem;font-weight:400;line-height:1.5;
+  padding:10px 12px;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.term:hover .tip,.term:focus .tip,.term.open .tip{display:block}
+
+/* Akış şeması */
+.flow{display:flex;flex-direction:column;align-items:center;gap:0;margin:20px 0;position:relative}
+.fbox{background:var(--surface);border:2px solid var(--accent);border-radius:10px;padding:10px 18px;
+  font-size:.9rem;font-weight:600;text-align:center;max-width:340px;width:100%}
+.fbox.start{background:var(--accent);color:var(--bg);border-color:var(--accent);border-radius:24px}
+.fbox.stop{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);border-radius:24px}
+.fbox small{display:block;font-weight:400;color:var(--muted);font-size:.78rem;margin-top:2px}
+.fbox.start small{color:var(--bg);opacity:.85}
+.fbox.stop small{color:var(--ok)}
+.fdiamond{background:var(--mark-bg);color:var(--mark-ink);border:2px solid var(--mark-ink);
+  padding:12px 20px;font-size:.88rem;font-weight:700;text-align:center;border-radius:14px;max-width:300px;width:100%}
+.farrow{display:flex;flex-direction:column;align-items:center;color:var(--muted);padding:2px 0}
+.farrow svg{display:block}
+.farrow .lbl{font-size:.74rem;font-weight:700;padding:1px 8px;border-radius:10px;margin:2px 0}
+.lbl.no{background:var(--danger-soft);color:var(--danger)}
+.lbl.yes{background:var(--ok-soft);color:var(--ok)}
+.loopback{font-size:.78rem;color:var(--danger);font-weight:700;background:var(--danger-soft);
+  border:1.5px dashed var(--danger);border-radius:8px;padding:8px 14px;margin:4px 0;text-align:center;max-width:340px;width:100%}
+
+/* Zayıf/Güçlü örnekler */
+.zg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+@media(max-width:560px){.zg{grid-template-columns:1fr}}
+.zg .z,.zg .g{border-radius:10px;padding:12px 14px;font-size:.9rem}
+.zg .z{background:var(--danger-soft);border:1px solid var(--danger)}
+.zg .g{background:var(--ok-soft);border:1px solid var(--ok)}
+.zg b.tag{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.zg .z b.tag{color:var(--danger)}
+.zg .g b.tag{color:var(--ok)}
+
+/* Quiz */
+.quiz-item{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:10px 0}
+.quiz-item .q{font-weight:600;margin-bottom:10px}
+.quiz-item .btns{display:flex;gap:8px}
+.quiz-item button{flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--line);
+  background:var(--surface);color:var(--ink);font-weight:600;font-size:.88rem;cursor:pointer}
+.quiz-item button:hover{border-color:var(--accent)}
+.quiz-item .fb{display:none;margin-top:10px;font-size:.88rem;padding:9px 12px;border-radius:8px}
+.quiz-item .fb.ok{background:var(--ok-soft);color:var(--ok)}
+.quiz-item .fb.no{background:var(--danger-soft);color:var(--danger)}
+.quiz-item.done button{opacity:.55;cursor:default}
+.quiz-item.done button.chosen{opacity:1;border-color:var(--accent);background:var(--accent-soft)}
+
+/* Loop Kurucu */
+.builder label{display:block;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin:14px 0 5px}
+.builder label small{display:block;text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted);font-size:.8rem}
+.builder input[type=text],.builder input[type=number],.builder textarea{
+  width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;
+  font:inherit;font-size:.95rem;background:var(--surface);color:var(--ink)}
+.builder textarea{min-height:74px;resize:vertical}
+.builder input:focus,.builder textarea:focus{border-color:var(--accent);outline:none}
+.btn{display:inline-block;padding:11px 20px;border-radius:8px;border:none;cursor:pointer;
+  font:inherit;font-weight:700;font-size:.92rem}
+.btn.primary{background:var(--accent);color:var(--bg)}
+.btn.ghost{background:none;border:1.5px solid var(--line);color:var(--muted)}
+.btn:hover{filter:brightness(1.08)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center}
+pre.prompt{background:var(--code-bg);border:1px solid var(--line);border-radius:10px;padding:16px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.82rem;line-height:1.55;
+  white-space:pre-wrap;word-break:break-word;overflow-x:auto;margin:14px 0 6px}
+.copy-note{font-size:.8rem;color:var(--ok);font-weight:600;visibility:hidden}
+.copy-note.show{visibility:visible}
+.saved-note{font-size:.78rem;color:var(--muted)}
+
+/* Şablonlar accordion */
+details.tpl{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin:10px 0;overflow:hidden}
+details.tpl summary{padding:13px 16px;font-weight:700;cursor:pointer;font-size:.95rem;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.tpl summary::-webkit-details-marker{display:none}
+details.tpl summary .chev{color:var(--accent);transition:transform .2s}
+details.tpl[open] summary .chev{transform:rotate(90deg)}
+details.tpl .body{padding:0 16px 16px}
+
+/* Program */
+.week{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:10px 0;display:flex;gap:14px;align-items:flex-start}
+.week input[type=checkbox]{width:20px;height:20px;margin-top:3px;accent-color:var(--accent);flex-shrink:0;cursor:pointer}
+.week .t{font-weight:700}
+.week .d{font-size:.88rem;color:var(--muted)}
+.week.done .t{text-decoration:line-through;color:var(--muted)}
+#prog-bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:10px 0 4px}
+#prog-fill{height:100%;background:var(--ok);width:0%;transition:width .3s}
+#prog-txt{font-size:.8rem;color:var(--muted)}
+
+/* Sözlük */
+dl.gloss{margin:0}
+dl.gloss div{border-bottom:1px solid var(--line);padding:10px 0}
+dl.gloss dt{font-weight:700;color:var(--accent)}
+dl.gloss dd{margin:2px 0 0;font-size:.92rem;color:var(--muted)}
+#gloss-search{width:100%;padding:11px 14px;border:1.5px solid var(--line);border-radius:8px;font:inherit;font-size:.95rem;background:var(--surface);color:var(--ink);margin-bottom:8px}
+#gloss-search:focus{border-color:var(--accent);outline:none}
+
+.callout{border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0;padding:12px 16px;margin:16px 0;font-size:.93rem}
+.callout.warn{border-color:var(--danger);background:var(--danger-soft)}
+ul,ol{padding-left:1.3em}
+li{margin:.3em 0}
+footer{border-top:1px solid var(--line);margin-top:60px;padding-top:18px;font-size:.82rem;color:var(--muted)}
+textarea#notlar{width:100%;min-height:110px;padding:12px;border:1.5px solid var(--line);border-radius:10px;font:inherit;font-size:.92rem;background:var(--surface);color:var(--ink);resize:vertical}
+</style>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Kişisel Eğitim Rehberi · İnteraktif</div>
+  <h1>Loop Eğitimi</h1>
+  <p class="lede">Yapay zekâya bir işi <em>bitene kadar</em> kendi kendine yaptırma sanatı — acil tıp araştırmacısı gözüyle, kod bilgisi gerektirmeden. <mark>Sarı işaretli cümleler bu eğitimin ezberlenecek kısımlarıdır.</mark></p>
+</header>
+
+<nav class="toc" aria-label="Bölümler">
+  <a href="#nedir">1 · Loop nedir</a>
+  <a href="#akis">2 · Akış şeması</a>
+  <a href="#bitti">3 · Bitti şartı</a>
+  <a href="#quiz">4 · Mini test</a>
+  <a href="#kurucu">5 · Loop Kurucu</a>
+  <a href="#sablon">6 · Hazır şablonlar</a>
+  <a href="#program">7 · 4 haftalık program</a>
+  <a href="#sozluk">8 · Sözlük</a>
+  <a href="#kaynak">9 · Kaynaklar</a>
+</nav>
+
+<!-- 1 -->
+<section id="nedir">
+  <div class="sec-num"><span class="n">1</span><h2>Loop nedir — aslında zaten biliyorsun</h2></div>
+  <p>Normal bir <span class="term" tabindex="0">prompt<span class="tip">Yapay zekâya yazdığın talimat metni. Tek seferlik bir istektir: cevap verir ve durur.</span></span> tek seferlik konuşur ve susar. <strong>Loop</strong> ise bir hedefe kilitlenir: dener, sonuca bakar, hatasını düzeltir ve <mark>hedef tamamlanana kadar kendi kendine döner</mark>. Sen klavyeye dokunmazsın.</p>
+  <p>Bu döngü sana yabancı değil — acilde her gün çalıştırıyorsun:</p>
+  <div class="table-scroll"><table>
+    <tr><th>Acil tıp pratiğin</th><th>Loop karşılığı</th></tr>
+    <tr><td>Hasta hedefi: "hemodinamik stabilizasyon"</td><td><b>HEDEF</b></td></tr>
+    <tr><td>Müdahale: sıvı, ilaç, işlem</td><td>Adımı uygula</td></tr>
+    <tr><td>Yeniden değerlendirme: vital, laktat, idrar çıkışı</td><td>Sonuca bak</td></tr>
+    <tr><td>Yanıt yoksa planı değiştir</td><td>Hatayı düzelt</td></tr>
+    <tr><td>Taburculuk / yatış kriteri</td><td><b>BİTTİ ŞARTI</b></td></tr>
+    <tr><td>"3 kez denedim, olmadı → konsültasyon"</td><td><b>GÜVENLİK FRENİ</b> (maksimum tur)</td></tr>
+  </table></div>
+  <p><mark>Loop kurmak = modele taburculuk kriteri yazmaktır.</mark> "Hasta iyi görünene kadar" demediğin gibi, modele de "güzel olana kadar" demezsin; "laktat &lt; 2, MAP &gt; 65" gibi sayılabilir madde verirsin.</p>
+  <div class="callout">Loop yalnızca araştırma için değildir: site, uygulama, sunum, veri analizi, Excel işi… Tek soru şudur: <b>"Bu işin bittiğini bir makine kontrol edebilir mi?"</b> Cevap evetse loop kurulur.</div>
+</section>
+
+<!-- 2 -->
+<section id="akis">
+  <div class="sec-num"><span class="n">2</span><h2>Loop'un algoritması</h2></div>
+  <p>Her loop, ne iş yaparsan yap, şu akışla döner. Kırmızı kesikli kutu, döngünün geri dönüş yoludur:</p>
+
+  <div class="flow" role="img" aria-label="Loop akış şeması: Hedef ve bitti şartı yazılır, model adım seçer ve uygular, sonuca bakılır. Bitti şartı sağlandıysa dur ve raporla. Sağlanmadıysa maksimum tur kontrol edilir; dolmadıysa hata düzeltilerek yeni adıma dönülür, dolduysa durup rapor verilir.">
+    <div class="fbox start">BAŞLA<small>Hedefi + bitti şartını + freni yaz</small></div>
+    <div class="farrow"><svg width="16" height="26" aria-hidden="true"><line x1="8" y1="0" x2="8" y2="18" stroke="currentColor" stroke-width="2"/><path d="M2 16 L8 25 L14 16" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+    <div class="fbox">Model bir sonraki adımı belirler<small>"Hedefe varmak için şimdi ne yapmalıyım?"</small></div>
+    <div class="farrow"><svg width="16" height="26" aria-hidden="true"><line x1="8" y1="0" x2="8" y2="18" stroke="currentColor" stroke-width="2"/><path d="M2 16 L8 25 L14 16" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+    <div class="fbox">Adımı GERÇEKTEN uygular<small>kodu yazar, çalıştırır, arar, dosyayı düzenler</small></div>
+    <div class="farrow"><svg width="16" height="26" aria-hidden="true"><line x1="8" y1="0" x2="8" y2="18" stroke="currentColor" stroke-width="2"/><path d="M2 16 L8 25 L14 16" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+    <div class="fbox">Sonuca bakar<small>çıktı, hata mesajı, ekran görüntüsü, kontrol listesi</small></div>
+    <div class="farrow"><svg width="16" height="26" aria-hidden="true"><line x1="8" y1="0" x2="8" y2="18" stroke="currentColor" stroke-width="2"/><path d="M2 16 L8 25 L14 16" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+    <div class="fdiamond">Bitti şartı sağlandı mı?</div>
+    <div class="farrow"><span class="lbl yes">EVET</span><svg width="16" height="22" aria-hidden="true"><line x1="8" y1="0" x2="8" y2="14" stroke="currentColor" stroke-width="2"/><path d="M2 12 L8 21 L14 12" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+    <div class="fbox stop">DUR ✓<small>Sonucu raporla</small></div>
+    <div class="farrow"><span class="lbl no">HAYIR ↓</span></div>
+    <div class="fdiamond">Maksimum tur doldu mu?</div>
+    <div class="farrow"><span class="lbl no">HAYIR</span></div>
+    <div class="loopback">↻ Hatayı oku → sebebini bir cümleyle söyle → düzelt → yeni adıma dön (TUR + 1)</div>
+    <div class="farrow"><span class="lbl yes">Maks. tur dolduysa: EVET ↓</span></div>
+    <div class="fbox stop" style="border-color:var(--danger);background:var(--danger-soft);color:var(--danger)">DUR ⚠<small style="color:var(--danger)">Geçen/kalan maddeleri tablo halinde raporla, kullanıcıya sor</small></div>
+  </div>
+
+  <p>Buradaki her dönüşe bir <span class="term" tabindex="0">tur (iterasyon)<span class="tip">Döngünün bir kez dönmesi: adım uygula → sonuca bak → düzelt. "V1, V2, V3" denen şey art arda turlardır.</span></span> denir. <mark>Modelin sonucu görmeden çalışması "kör uçuş"tur</mark> — her turda çıktıyı, hata mesajını veya ekran görüntüsünü mutlaka kendi kendine kontrol ettirmelisin.</p>
+</section>
+
+<!-- 3 -->
+<section id="bitti">
+  <div class="sec-num"><span class="n">3</span><h2>Bitti şartı yazma sanatı</h2></div>
+  <p>Eğitimin tamamı tek cümleye sıkışır: <mark>loop'un kalitesi, kontrol listesinin kalitesi kadardır.</mark> Vaktinin çoğunu prompt'a değil, bitti şartına harca.</p>
+
+  <div class="zg">
+    <div class="z"><b class="tag">✗ Zayıf (öznel)</b>"İyi bir literatür taraması yap."</div>
+    <div class="g"><b class="tag">✓ Güçlü (ölçülebilir)</b>"3 farklı arama stratejisinde üst üste yeni sonuç çıkmayana kadar ara." (doygunluk kriteri)</div>
+    <div class="z"><b class="tag">✗ Zayıf</b>"Uygulama düzgün çalışsın."</div>
+    <div class="g"><b class="tag">✓ Güçlü</b>"6 maddelik kontrol listesi — hepsi geçmeli, her turda kaç/6 raporla."</div>
+    <div class="z"><b class="tag">✗ Zayıf</b>"Özet güçlü olsun."</div>
+    <div class="g"><b class="tag">✓ Güçlü</b>"5 kriter × 1-10 puan; ortalama ≥ 9 VE hiçbiri &lt; 8."</div>
+    <div class="z"><b class="tag">✗ Zayıf</b>"Beğenene kadar devam et."</div>
+    <div class="g"><b class="tag">✓ Güçlü</b>ASLA böyle deme. Her zaman <b>sayı + maksimum tur</b>.</div>
+  </div>
+
+  <h3>Üç ek kural</h3>
+  <ul>
+    <li><b>Doygunluk kriteri</b> — araştırma loop'larının altın standardı: <mark>"K tur üst üste yeni bir şey çıkmazsa dur."</mark> Sistematik derlemedeki arama doygunluğunun aynısı.</li>
+    <li><b><span class="term" tabindex="0">Regresyon<span class="tip">Bir hatayı düzeltirken daha önce çalışan bir şeyi bozmak. Loop'larda her turda eski maddelerin de yeniden test edilmesi gerekir.</span></span> kontrolü</b> — "düzelttiğin madde geçerken, önceki maddeleri de yeniden test et."</li>
+    <li><b>Çürütme çerçevesi</b> — doğrulama işlerinde modele "destekle" değil <mark>"yıkmaya çalış" de; hayatta kalan iddia güçlü iddiadır.</mark> (Ayırıcı tanıda alternatifleri dışlamakla aynı mantık.)</li>
+  </ul>
+
+  <div class="callout warn"><b>Güvenlik frenleri:</b> (1) Her loop'a maksimum tur koy. (2) Geri alınamaz adımlarda — yayınlama, silme, e-posta gönderme, etik/yöntem kararları — loop'a <mark>"bu noktada dur ve bana sor"</mark> talimatı ver. Loop denemekte özgür, taahhüt etmekte izinli olmalı. (3) Literatür loop'larında her künyeyi doğrulat: "tüm atıflar PMID/DOI ile doğrulanmış" maddesini bitti şartına ekle.</div>
+</section>
+
+<!-- 4 -->
+<section id="quiz">
+  <div class="sec-num"><span class="n">4</span><h2>Mini test: zayıf mı, güçlü mü?</h2></div>
+  <p>Aşağıdaki bitti şartlarını değerlendir. Beceriyi ölçmenin en hızlı yolu bu.</p>
+  <div id="quiz-list"></div>
+  <p id="quiz-score" class="saved-note"></p>
+</section>
+
+<!-- 5 -->
+<section id="kurucu">
+  <div class="sec-num"><span class="n">5</span><h2>Loop Kurucu — doldur, prompt'u al</h2></div>
+  <p>Aklındaki işi 4 kutuya dök; sana kopyala-yapıştır hazır bir loop prompt'u üretsin. <mark>Yazdıkların bu cihazda otomatik kaydedilir</mark> — sayfayı kapatıp açsan da durur.</p>
+
+  <div class="card builder">
+    <label for="b-hedef">1 · Hedef <small>Tek cümle, ölçülebilir. Örn: "TOURNI-ED'in CSV export'unun girilen veriyle birebir eşleştiğini doğrula ve hataları düzelt."</small></label>
+    <input type="text" id="b-hedef" placeholder="Tek net hedef yaz…">
+
+    <label for="b-adim">2 · Adımlar <small>Model her turda ne yapacak? Örn: "Uygulamayı yerel sunucuda aç, listeyi tek tek dene."</small></label>
+    <textarea id="b-adim" placeholder="Yap → çalıştır/dene → sonuca bak → düzelt…"></textarea>
+
+    <label for="b-bitti">3 · Bitti kontrol listesi <small>Her satıra bir madde. Sayılabilir, kontrol edilebilir olsun.</small></label>
+    <textarea id="b-bitti" placeholder="Sayfa konsolda hatasız açılıyor
+Export satır sayısı girilen kayıtla eşleşiyor
+…"></textarea>
+
+    <label for="b-tur">4 · Güvenlik freni <small>Maksimum tur sayısı.</small></label>
+    <input type="number" id="b-tur" min="1" max="50" value="8" style="max-width:120px">
+
+    <label for="b-sor">"Dur ve bana sor" durumları <small>İsteğe bağlı. Örn: "Dosya silmen gerekirse, yöntem değişikliği gerekirse."</small></label>
+    <input type="text" id="b-sor" placeholder="Hangi noktalarda sana danışsın?">
+
+    <div class="btn-row">
+      <button class="btn primary" id="b-gen">Prompt'u üret</button>
+      <button class="btn ghost" id="b-clear">Temizle</button>
+      <span class="saved-note" id="b-saved"></span>
+    </div>
+
+    <div id="b-out" hidden>
+      <pre class="prompt" id="b-prompt"></pre>
+      <div class="btn-row">
+        <button class="btn primary" id="b-copy">📋 Kopyala</button>
+        <span class="copy-note" id="b-copied">Kopyalandı ✓ — Claude Code'a yapıştır</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="sablon">
+  <div class="sec-num"><span class="n">6</span><h2>Hazır şablon kütüphanesi</h2></div>
+  <p>Köşeli parantezleri kendi işinle doldur; her şablonun kopyala düğmesi var.</p>
+
+  <details class="tpl"><summary>🩺 TOURNI-ED veri bütünlüğü loop'u (bu akşamki egzersiz)<span class="chev">›</span></summary><div class="body">
+  <pre class="prompt">HEDEF: TOURNI-ED uygulamasındaki (index.html) veri bütünlüğünü doğrula ve
+bulduğun hataları düzelt.
+
+ÇALIŞMA ŞEKLİN (loop): Uygulamayı yerel sunucuda aç, aşağıdaki kontrol
+listesini tek tek dene. Geçmeyen ilk maddeyi bul, sebebini bir cümleyle
+söyle, düzelt, tekrar dene. Her turda bana "kaç/6 madde geçti" yaz.
+
+BİTTİ KONTROL LİSTESİ (6 madde, hepsi geçmeli):
+1. Sayfa konsolda hata olmadan açılıyor.
+2. A-DIVA skoru 5 sorunun toplamını her kombinasyonda doğru hesaplıyor.
+3. Kronometre başlat/durdur, turnike süresi alanına saniyeyi doğru yazıyor.
+4. Zorunlu alanlar boşken kayıt engelleniyor ve kullanıcı uyarılıyor.
+5. 3 sahte hasta kaydı gir → CSV export'taki satırlar ve kolonlar girilen
+   veriyle birebir eşleşiyor (Türkçe karakterler dahil).
+6. Sayfa yenilenince kayıtlar kaybolmuyor.
+
+GÜVENLİK FRENİ: En fazla 10 tur. Her turda önceki maddeleri de yeniden
+test et (regresyon). 10'a gelince dur, geçen/kalan maddeleri tablo yap.
+
+Ben araya girmeden bu döngüyü kendin yürüt. Takıldığında durup net soru sor.</pre>
+  <button class="btn primary copy-tpl">📋 Kopyala</button> <span class="copy-note">Kopyalandı ✓</span></div></details>
+
+  <details class="tpl"><summary>🔍 GAP Avcısı loop'u (araştırma boşluğu bulma)<span class="chev">›</span></summary><div class="body">
+  <pre class="prompt">HEDEF: "[KONU]" konusunda yayınlanabilir, özgün en az 3 araştırma boşluğu
+(GAP) tespit et.
+
+ÇALIŞMA ŞEKLİN (loop):
+1. PubMed'de sistematik ara; her turda farklı strateji dene (MeSH,
+   sinonimler, ilişkili makaleler).
+2. Derleme/meta-analizlerin "limitations" ve "future research"
+   bölümlerini oku.
+3. Her GAP adayını 4 soruda puanla (1-10):
+   a) Gerçekten boş mu? (en az 3 stratejiyle doğrula)
+   b) Acil serviste pratik olarak çalışılabilir mi?
+   c) Klinik önemi var mı?
+   d) Tek merkez, makul sürede yapılabilir mi?
+4. Herhangi biri &lt; 6 ise adayı ele, aramaya devam et.
+
+BİTTİ ŞARTI: 4 kriterin hepsinden ≥ 6 alan 3 GAP. Her biri için PICO
+formatında soru + "neden hâlâ yapılmamış" hipotezi + en yakın 3 çalışmanın
+künyesi (PMID/DOI ile doğrulanmış).
+
+GÜVENLİK FRENİ: Maks. 12 arama turu; dolarsa en iyi adayları puan
+tablosuyla sun. Künyeleri hafızandan yazma, doğrula.</pre>
+  <button class="btn primary copy-tpl">📋 Kopyala</button> <span class="copy-note">Kopyalandı ✓</span></div></details>
+
+  <details class="tpl"><summary>⚔️ "Literatürde ilk mi?" çürütme loop'u<span class="chev">›</span></summary><div class="body">
+  <pre class="prompt">HEDEF: "[ÇALIŞMA FİKRİM]" için "literatürde ilk" iddiamı ÇÜRÜTMEYE çalış.
+
+ÇALIŞMA ŞEKLİN (loop): Her turda farklı açıdan benzer çalışma ara:
+1. Aynı soru, farklı popülasyon (pediatri, yoğun bakım, prehospital…)
+2. Aynı soru, farklı terminoloji (eski terimler, İngilizce dışı, tezler)
+3. Aynı yöntem, komşu alanlar (anestezi, hemşirelik, laboratuvar tıbbı)
+4. Kongre bildirileri ve preprint'ler (medRxiv)
+5. Kayıtlı ama yayınlanmamış protokoller (ClinicalTrials.gov)
+
+BİTTİ ŞARTI: (a) Çürüten çalışma bulundu → künyesi + fikrimi ondan nasıl
+farklılaştırırım, 2 öneri; VEYA (b) 5 açı da tarandı, hiçbir şey çıkmadı →
+"ilk" iddiasını makalede güvenli ifade etme önerisi ("to our knowledge,
+… in the ED setting" gibi sınırlı iddia).
+
+GÜVENLİK FRENİ: Maks. 10 tur. Tüm künyeler PMID/DOI ile doğrulanmış olmalı.</pre>
+  <button class="btn primary copy-tpl">📋 Kopyala</button> <span class="copy-note">Kopyalandı ✓</span></div></details>
+
+  <details class="tpl"><summary>⚖️ Çalışma dizaynı — kendi kendine hakem paneli<span class="chev">›</span></summary><div class="body">
+  <pre class="prompt">HEDEF: "[ARAŞTIRMA SORUM — PICO]" için etik kurula sunulabilir olgunlukta
+protokol taslağı üret.
+
+ÇALIŞMA ŞEKLİN (loop):
+1. Taslağı yaz (dizayn, popülasyon, örneklem hesabı, sonlanımlar,
+   istatistik planı, akış şeması).
+2. 3 hakem gözüyle acımasızca puanla (1-10):
+   - Metodolog: bias, karıştırıcılar, güç analizi doğru mu?
+   - Acil tıp klinisyeni: sahada GERÇEKTEN uygulanabilir mi?
+   - Dergi hakemi: STROBE/CONSORT karşılanıyor mu, "so what?" cevabı net mi?
+3. En düşük puan veren hakemin en sert 2 eleştirisini düzelt, yeniden puanla.
+
+BİTTİ ŞARTI: Üç hakem de ≥ 8 VE örneklem hesabı sayısal olarak açık
+(etki büyüklüğü, alfa, güç, n).
+
+GÜVENLİK FRENİ: Maks. 6 tur. Dolarsa kalan zayıflıkları "bilinen
+limitasyonlar" listesi olarak ver. Etik/yöntem kararlarında dur, bana sor.</pre>
+  <button class="btn primary copy-tpl">📋 Kopyala</button> <span class="copy-note">Kopyalandı ✓</span></div></details>
+
+  <details class="tpl"><summary>🌐 Web sitesi / sayfa — kendi kendini puanlayan loop<span class="chev">›</span></summary><div class="body">
+  <pre class="prompt">HEDEF: [ürünün/işin] için tek dosyalık (index.html) bir sayfa kur.
+
+HER TURDA KENDİNİ ŞÖYLE KONTROL ET:
+1. Sayfayı yerel sunucuda aç, ekran görüntüsü al (1280px ve 375px).
+2. Şu 5 kritere 1-10 puan ver (hepsi objektif):
+   - Konsolda hiç hata yok
+   - 375px'te (mobil) bozulmadan açılıyor
+   - İlk ekranda net başlık + tek CTA butonu var
+   - Kırık link yok
+   - Metin/arka plan kontrastı okunur (WCAG AA)
+3. En düşük puanlı kriteri bul, SADECE onu düzelt.
+4. Tekrar görüntü al, tekrar puanla.
+
+BİTTİ ŞARTI: Ortalama ≥ 9 VE hiçbir kriter &lt; 8.
+GÜVENLİK FRENİ: Maks. 8 tur; dolunca puan tablosuyla özet ver.</pre>
+  <button class="btn primary copy-tpl">📋 Kopyala</button> <span class="copy-note">Kopyalandı ✓</span></div></details>
+
+  <details class="tpl"><summary>📝 Hakem yanıtı (revizyon) loop'u<span class="chev">›</span></summary><div class="body">
+  <pre class="prompt">HEDEF: Ekteki hakem eleştirilerinin TAMAMINA nokta atışı yanıt + makalede
+karşılık gelen değişiklik üret.
+
+ÇALIŞMA ŞEKLİN (loop): Her eleştiri için: (1) tek cümleyle yeniden ifade
+et, (2) katılıyor muyuz karar ver, (3) yanıt + metin değişikliği yaz,
+(4) kontrol: yanıt eleştirinin HER alt maddesini karşılıyor mu, değişiklik
+makalenin başka yerinde çelişki yaratıyor mu?
+
+BİTTİ ŞARTI: Tüm eleştiriler "yanıtlandı + değişiklik işaretlendi +
+çelişki taraması temiz".
+
+GÜVENLİK FRENİ: Yöntem değişikliği veya ek analiz isteyen eleştirilerde
+DUR ve bana sor — bunlar benim kararım.</pre>
+  <button class="btn primary copy-tpl">📋 Kopyala</button> <span class="copy-note">Kopyalandı ✓</span></div></details>
+
+  <h3>Loop sapıttığında müdahale cümleleri</h3>
+  <ul>
+    <li>"Hedeften saptın, sadece şu tek işe odaklan."</li>
+    <li>"Her adımın sonucunu bana göster, sonra devam et."</li>
+    <li>"Bu hedef çok büyük, önce en küçük çalışan parçayı bitir."</li>
+    <li>"Hata mesajını olduğu gibi oku, tahmin etme."</li>
+    <li><mark>"Bu kaynağı gerçekten buldun mu, hafızandan mı yazdın? DOI/PMID ver, doğrula."</mark></li>
+  </ul>
+</section>
+
+<!-- 7 -->
+<section id="program">
+  <div class="sec-num"><span class="n">7</span><h2>4 haftalık pratik program</h2></div>
+  <p>İşaretledikçe ilerlemen kaydedilir.</p>
+  <div id="prog-bar"><div id="prog-fill"></div></div>
+  <p id="prog-txt">0/4 hafta tamamlandı</p>
+
+  <label class="week" for="w1"><input type="checkbox" id="w1"><span><span class="t">Hafta 1 — İşlevsel loop:</span> <span class="d">TOURNI-ED şablonunu (Bölüm 6'nın ilki) Claude Code'da çalıştır. Amaç mekaniği hissetmek: tur, kontrol listesi, fren.</span></span></label>
+  <label class="week" for="w2"><input type="checkbox" id="w2"><span><span class="t">Hafta 2 — Puanlamalı loop:</span> <span class="d">Yazmakta olduğun bir abstract'ı al, 5 objektif kriterli puanlama loop'u kur. Asıl egzersiz kriter yazmak, metin iyileştirmek değil.</span></span></label>
+  <label class="week" for="w3"><input type="checkbox" id="w3"><span><span class="t">Hafta 3 — GAP avcısı:</span> <span class="d">Bir çalışma fikrini seç; GAP Avcısı + Çürütme loop'larını sırayla çalıştır. Çıktı: "ilk"liği doğrulanmış PICO sorusu.</span></span></label>
+  <label class="week" for="w4"><input type="checkbox" id="w4"><span><span class="t">Hafta 4 — Dizayn:</span> <span class="d">Hafta 3'ün çıktısını hakem paneli loop'una sok. Çıktı: etik kurul başvurusunun iskeleti.</span></span></label>
+
+  <h3>Kendi notların</h3>
+  <textarea id="notlar" placeholder="Öğrendiklerin, denediğin loop'lar, takıldığın yerler… (bu cihazda otomatik kaydedilir)"></textarea>
+</section>
+
+<!-- 8 -->
+<section id="sozluk">
+  <div class="sec-num"><span class="n">8</span><h2>Teknik terim sözlüğü</h2></div>
+  <p>Kod geçmişin olmadan ihtiyacın olan her terim. Metin içindeki <span class="term" tabindex="0">noktalı altı çizili<span class="tip">Aynen böyle — üzerine gelince (telefonda dokununca) tanımı açılır.</span></span> kelimelere de dokunabilirsin.</p>
+  <input type="search" id="gloss-search" placeholder="Sözlükte ara… (örn. terminal)" aria-label="Sözlükte ara">
+  <dl class="gloss" id="gloss-list">
+    <div><dt>Prompt</dt><dd>Yapay zekâya yazdığın talimat metni. Tek seferliktir: cevap verir, susar. Loop, prompt'un içine "bitene kadar tekrarla" kuralı yazılmış halidir.</dd></div>
+    <div><dt>Agent (ajan)</dt><dd>Sadece konuşmakla kalmayıp araç kullanan (dosya yazan, komut çalıştıran, internette arayan) yapay zekâ. Resmî tanım: "döngü içinde araç kullanan model".</dd></div>
+    <div><dt>Loop (döngü)</dt><dd>Bir hedefe kilitlenip "dene → sonuca bak → düzelt → tekrar dene" şeklinde, bitti şartı sağlanana kadar kendi kendine dönen çalışma biçimi.</dd></div>
+    <div><dt>Tur / İterasyon</dt><dd>Döngünün bir kez dönmesi. "V1, V2, V3" diye anılan şey art arda turlardır.</dd></div>
+    <div><dt>Bitti şartı</dt><dd>İşin tamamlandığını gösteren ölçülebilir kriter listesi. Senin dilinle: taburculuk kriteri.</dd></div>
+    <div><dt>Güvenlik freni</dt><dd>Loop'un sonsuza dek dönmesini engelleyen üst sınır (örn. "maksimum 8 tur") + geri alınamaz adımlarda "dur ve bana sor" kuralı.</dd></div>
+    <div><dt>Terminal</dt><dd>Bilgisayara yazıyla komut verdiğin siyah ekran (Mac'te "Terminal", Windows'ta "PowerShell"). Claude Code burada çalışır.</dd></div>
+    <div><dt>Claude Code</dt><dd>Claude'un terminalde çalışan hali: kodu kendi yazar, kendi çalıştırır, hatayı kendi okur. Loop'u en net gördüğün araç budur.</dd></div>
+    <div><dt>Konsol</dt><dd>Tarayıcının hata günlüğü (sayfada sağ tık → "İncele" → "Console"). "Konsolda hata yok" maddesi, sayfanın sessizce bozulmadığının kanıtıdır.</dd></div>
+    <div><dt>Yerel sunucu</dt><dd>Bir web sayfasını internete koymadan kendi bilgisayarında çalıştırma yöntemi. Model test için sayfayı böyle açar.</dd></div>
+    <div><dt>localStorage</dt><dd>Tarayıcının, veriyi cihazda saklama alanı. TOURNI-ED hasta kayıtlarını, bu sayfa da notlarını böyle saklar; internet gerektirmez.</dd></div>
+    <div><dt>CSV / Export</dt><dd>Verinin Excel'in açabildiği tablo dosyası olarak dışa aktarılması. Araştırma verisinde en sık sessiz hata kaynağı — mutlaka loop'la doğrulat.</dd></div>
+    <div><dt>PWA</dt><dd>"Progressive Web App": telefona uygulama gibi kurulabilen, çevrimdışı da çalışabilen web sayfası. TOURNI-ED bir PWA'dır.</dd></div>
+    <div><dt>Regresyon</dt><dd>Bir hatayı düzeltirken önceden çalışan bir şeyi bozmak. İyi loop her turda eski maddeleri de yeniden test eder.</dd></div>
+    <div><dt>Repo (depo)</dt><dd>GitHub'da bir projenin dosyalarının ve tüm değişiklik geçmişinin durduğu klasör. Senin depon: tourni-ed-app.</dd></div>
+    <div><dt>Branch (dal)</dt><dd>Deponun paralel çalışma kopyası. Ana sürümü (main) bozmadan denemeler ayrı dalda yapılır, beğenilirse birleştirilir.</dd></div>
+    <div><dt>Commit / Push</dt><dd>Commit: değişikliği tarihe not düşmek ("şunu değiştirdim"). Push: bu notları GitHub'a göndermek. İkisi birlikte = kayıt + yedek.</dd></div>
+    <div><dt>Evaluator-optimizer</dt><dd>Resmî literatürdeki adıyla "kendi kendini puanlayan loop": bir taraf üretir, diğer taraf objektif kriterle puanlar, eşiğe kadar döner.</dd></div>
+    <div><dt>TDD (test-driven development)</dt><dd>"Önce testi/kontrol listesini yaz, sonra kodu ona geçir" yaklaşımı. Senin 4 maddelik bitti listen, kod dünyasında buna karşılık gelir.</dd></div>
+    <div><dt>Halüsinasyon</dt><dd>Modelin, var olmayan bilgiyi (örn. uydurma makale künyesi) kendinden emin biçimde yazması. Panzehiri: "PMID/DOI ver, doğrula" kuralı.</dd></div>
+  </dl>
+</section>
+
+<!-- 9 -->
+<section id="kaynak">
+  <div class="sec-num"><span class="n">9</span><h2>Doğrulanmış kaynaklar &amp; bilgi kirliliği filtresi</h2></div>
+  <p>Loop/agent yaklaşımını tanımlayan ekip Anthropic'tir; aşağıdakiler birincil kaynaklardır. <mark>İnternetteki içeriklerin çoğu bunların sulandırılmış anlatımıdır — şüpheye düştüğünde buraya dön.</mark></p>
+  <ol>
+    <li><a href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank" rel="noopener">Building Effective Agents</a> — kurucu metin; "kendi kendini puanlayan loop" (evaluator-optimizer) buradan.</li>
+    <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank" rel="noopener">Claude Code: Best Practices for Agentic Coding</a> — loop'u pratikte kurma rehberi.</li>
+    <li><a href="https://code.claude.com/docs/en/best-practices" target="_blank" rel="noopener">Claude Code resmî dokümantasyonu — Best Practices</a> — güncel tutulan referans.</li>
+    <li><a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents" target="_blank" rel="noopener">Effective Harnesses for Long-Running Agents</a> — ileri seviye: uzun loop'lar nasıl raydan çıkmaz.</li>
+  </ol>
+  <h3>4 soruluk kirlilik filtresi</h3>
+  <ol>
+    <li>Birincil kaynakta karşılığı var mı?</li>
+    <li>İçerik 6-12 aydan eski mi? (Araç detayları eskir; hedef-bitti şartı-fren kavramları eskimez.)</li>
+    <li>Gerçek tur/hata/düzeltme çıktısı gösteriyor mu, yoksa sadece sonucu mu?</li>
+    <li><mark>"Sihirli prompt" mu vaat ediyor? Bu her zaman kırmızı bayraktır — asıl beceri prompt değil, kontrol listesi yazmaktır.</mark></li>
+  </ol>
+</section>
+
+<footer>
+  TOURNI-ED projesinin sahibi için hazırlanmış kişisel eğitim sayfası · Metin sürümü: GitHub deposunda <b>docs/LOOP-EGITIMI.md</b> · Notların ve ilerlemen yalnızca bu cihazda saklanır, hiçbir yere gönderilmez.
+</footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+var LS = "loopEgitim.";
+function get(k,d){try{var v=localStorage.getItem(LS+k);return v===null?d:v}catch(e){return d}}
+function set(k,v){try{localStorage.setItem(LS+k,v)}catch(e){}}
+
+/* Sözlük terimi: dokunmatik için tıkla-aç */
+document.querySelectorAll(".term").forEach(function(t){
+  t.addEventListener("click",function(e){
+    document.querySelectorAll(".term.open").forEach(function(o){if(o!==t)o.classList.remove("open")});
+    t.classList.toggle("open");
+  });
+});
+
+/* Quiz */
+var QUIZ=[
+ {q:'"Landing page güzel görünene kadar iyileştir."',a:0,fb:"Zayıf — 'güzel' öznel; model ne zaman duracağını bilemez. Doğrusu: objektif kriterler + puan eşiği + maks. tur."},
+ {q:'"5 kritere 1-10 puan ver; ortalama ≥ 9 VE hiçbiri < 8 olana kadar en düşüğü düzelt. Maks. 8 tur."',a:1,fb:"Güçlü — sayı var, eşik var, fren var. Evaluator-optimizer deseninin ders kitabı hali."},
+ {q:'"Literatürü iyice tara, önemli bir boşluk bul."',a:0,fb:"Zayıf — 'iyice' ve 'önemli' ölçülemez. Doğrusu: doygunluk kriteri (3 stratejide yeni sonuç yok) + fizibilite puanı eşiği."},
+ {q:'"3 sahte kayıt gir; CSV\'deki satırlar ve kolonlar girilenle birebir eşleşmeli, Türkçe karakterler dahil."',a:1,fb:"Güçlü — makine kontrol edebilir, birebir karşılaştırma yapılabilir. Veri bütünlüğü için altın standart."},
+ {q:'"Hakem eleştirilerine tatmin edici yanıtlar yaz."',a:0,fb:"Zayıf — 'tatmin edici' kimin ölçüsü? Doğrusu: her eleştirinin her alt maddesi yanıtlandı + çelişki taraması temiz."},
+ {q:'"3 stratejide üst üste yeni makale çıkmayana kadar ara; tüm künyeler PMID/DOI ile doğrulanmış olsun. Maks. 12 tur."',a:1,fb:"Güçlü — doygunluk kriteri + halüsinasyon panzehiri + fren. Araştırma loop'unun ideal bitti şartı."}
+];
+var list=document.getElementById("quiz-list"),score=0,answered=0;
+QUIZ.forEach(function(item,i){
+  var d=document.createElement("div");d.className="quiz-item";
+  d.innerHTML='<div class="q">'+(i+1)+". "+item.q+'</div>'+
+    '<div class="btns"><button data-v="0">✗ Zayıf</button><button data-v="1">✓ Güçlü</button></div>'+
+    '<div class="fb"></div>';
+  list.appendChild(d);
+  d.querySelectorAll("button").forEach(function(b){
+    b.addEventListener("click",function(){
+      if(d.classList.contains("done"))return;
+      d.classList.add("done");b.classList.add("chosen");answered++;
+      var ok=(+b.dataset.v===item.a);if(ok)score++;
+      var fb=d.querySelector(".fb");
+      fb.className="fb "+(ok?"ok":"no");
+      fb.textContent=(ok?"Doğru! ":"Yanlış. ")+item.fb;
+      fb.style.display="block";
+      document.getElementById("quiz-score").textContent=
+        answered===QUIZ.length?("Sonuç: "+score+"/"+QUIZ.length+(score===QUIZ.length?" — mükemmel, bitti şartı refleksin oturmuş. 🎯":" — yanlışların açıklamalarını tekrar oku; beceri tam orada.")):(answered+"/"+QUIZ.length+" soru cevaplandı");
+    });
+  });
+});
+
+/* Loop Kurucu */
+var F={hedef:"b-hedef",adim:"b-adim",bitti:"b-bitti",tur:"b-tur",sor:"b-sor"};
+Object.keys(F).forEach(function(k){
+  var el=document.getElementById(F[k]);
+  var saved=get(k,"");if(saved)el.value=saved;
+  el.addEventListener("input",function(){set(k,el.value);
+    var s=document.getElementById("b-saved");s.textContent="Kaydedildi ✓";
+    clearTimeout(s._t);s._t=setTimeout(function(){s.textContent=""},1500);
+  });
+});
+document.getElementById("b-gen").addEventListener("click",function(){
+  var hedef=document.getElementById("b-hedef").value.trim()||"[hedefini yaz]";
+  var adim=document.getElementById("b-adim").value.trim();
+  var maddeler=document.getElementById("b-bitti").value.split("\n").map(function(s){return s.trim()}).filter(Boolean);
+  var tur=document.getElementById("b-tur").value||"8";
+  var sor=document.getElementById("b-sor").value.trim();
+  var liste=maddeler.length?maddeler.map(function(m,i){return (i+1)+". "+m}).join("\n"):"1. [her satıra bir madde yaz]";
+  var p="HEDEF: "+hedef+"\n\n"+
+    "ÇALIŞMA ŞEKLİN (loop):\n"+
+    (adim?adim+"\n":"")+
+    "Aşağıdaki kontrol listesini her turda tek tek dene. Geçmeyen ilk maddeyi\n"+
+    "bul, sebebini bir cümleyle söyle, düzelt, tekrar dene. Düzeltme yaparken\n"+
+    "önceki maddeleri de yeniden test et (regresyon). Her turda bana\n"+
+    "\"kaç/"+(maddeler.length||"N")+" madde geçti\" diye tek satır özet ver.\n\n"+
+    "BİTTİ KONTROL LİSTESİ (hepsi geçmeli):\n"+liste+"\n\n"+
+    "GÜVENLİK FRENİ: En fazla "+tur+" tur. Dolarsa dur, geçen/kalan maddeleri\n"+
+    "tablo halinde raporla."+
+    (sor?"\nŞu durumlarda MUTLAKA dur ve bana sor: "+sor+".":"")+"\n\n"+
+    "Ben araya girmeden bu döngüyü kendin yürüt. Takıldığında durup bana net\n"+
+    "bir soru sor.";
+  document.getElementById("b-prompt").textContent=p;
+  document.getElementById("b-out").hidden=false;
+});
+document.getElementById("b-clear").addEventListener("click",function(){
+  Object.keys(F).forEach(function(k){document.getElementById(F[k]).value=(k==="tur"?"8":"");set(k,"")});
+  document.getElementById("b-out").hidden=true;
+});
+function copyText(txt,note){
+  function ok(){note.classList.add("show");setTimeout(function(){note.classList.remove("show")},2200)}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok,function(){fallback()})}else{fallback()}
+  function fallback(){var ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");ok()}catch(e){}document.body.removeChild(ta)}
+}
+document.getElementById("b-copy").addEventListener("click",function(){
+  copyText(document.getElementById("b-prompt").textContent,document.getElementById("b-copied"));
+});
+document.querySelectorAll(".copy-tpl").forEach(function(b){
+  b.addEventListener("click",function(){
+    copyText(b.parentElement.querySelector("pre.prompt").textContent,b.nextElementSibling);
+  });
+});
+
+/* Program */
+var weeks=["w1","w2","w3","w4"];
+function renderProg(){
+  var done=0;
+  weeks.forEach(function(w){
+    var cb=document.getElementById(w);
+    cb.parentElement.classList.toggle("done",cb.checked);
+    if(cb.checked)done++;
+  });
+  document.getElementById("prog-fill").style.width=(done/4*100)+"%";
+  document.getElementById("prog-txt").textContent=done+"/4 hafta tamamlandı"+(done===4?" — tebrikler, artık loop kuran birisin. 🏆":"");
+}
+weeks.forEach(function(w){
+  var cb=document.getElementById(w);
+  cb.checked=get(w,"0")==="1";
+  cb.addEventListener("change",function(){set(w,cb.checked?"1":"0");renderProg()});
+});
+renderProg();
+
+/* Notlar */
+var not=document.getElementById("notlar");
+not.value=get("notlar","");
+not.addEventListener("input",function(){set("notlar",not.value)});
+
+/* Sözlük arama */
+document.getElementById("gloss-search").addEventListener("input",function(){
+  var q=this.value.toLocaleLowerCase("tr");
+  document.querySelectorAll("#gloss-list > div").forEach(function(row){
+    row.style.display=row.textContent.toLocaleLowerCase("tr").indexOf(q)>-1?"":"none";
+  });
+});
+})();
+</script>
