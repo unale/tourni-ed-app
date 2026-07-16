@@ -262,3 +262,35 @@ Hafta 3→4'ü tekrar çalıştırırsın.
    "dur ve bana sor" talimatı ver.
 5. Loop'un kalitesi = kontrol listesinin kalitesi. Vaktin çoğunu prompt'a
    değil, kontrol listesine harca.
+
+---
+
+## 8. Doğrulanmış kaynaklar (birincil literatür)
+
+Loop/agent yaklaşımını tanımlayan ekip Anthropic'tir; aşağıdakiler resmî
+birincil kaynaklardır. İnternetteki içeriklerin çoğu bunların sulandırılmış
+anlatımıdır — şüpheye düştüğünde buraya dön.
+
+Okuma sırasıyla:
+
+1. **Building Effective Agents** — kurucu metin; "agent = döngüde araç
+   kullanan model" tanımı ve evaluator-optimizer (kendi kendini puanlayan
+   loop) deseni buradan.
+   https://www.anthropic.com/engineering/building-effective-agents
+2. **Claude Code: Best Practices for Agentic Coding** — loop'u Claude
+   Code'da pratikte kurma rehberi (TDD döngüsü, ekran görüntüsüyle
+   iyileştirme döngüsü).
+   https://www.anthropic.com/engineering/claude-code-best-practices
+3. **Claude Code resmî dokümantasyonu — Best Practices** — güncel tutulan
+   referans; araç değiştikçe burası güncellenir.
+   https://code.claude.com/docs/en/best-practices
+4. **Effective Harnesses for Long-Running Agents** — ileri seviye: uzun
+   süre kendi başına çalışan loop'lar nasıl raydan çıkmaz ("güvenlik
+   freni"nin derinlemesine hali).
+   https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents
+
+Bilgi kirliliği filtresi (4 soru): (1) Birincil kaynakta karşılığı var mı?
+(2) İçerik 6-12 aydan eski mi? (3) Gerçek tur/hata/düzeltme çıktısı
+gösteriyor mu, sadece sonucu mu? (4) "Sihirli prompt" mu vaat ediyor?
+— Sonuncusu her zaman kırmızı bayraktır: asıl beceri prompt değil,
+kontrol listesi yazmaktır.
