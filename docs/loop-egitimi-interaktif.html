@@ -98,6 +98,9 @@ th{background:var(--accent-soft);color:var(--accent);font-size:.8rem;text-transf
   font-size:.9rem;font-weight:600;text-align:center;max-width:340px;width:100%}
 .fbox.start{background:var(--accent);color:var(--bg);border-color:var(--accent);border-radius:24px}
 .fbox.stop{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);border-radius:24px}
+[data-goto]{cursor:pointer}
+[data-goto]:hover{filter:brightness(1.05);box-shadow:var(--shadow)}
+[data-goto]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .fbox small{display:block;font-weight:400;color:var(--muted);font-size:.78rem;margin-top:2px}
 .fbox.start small{color:var(--bg);opacity:.85}
 .fbox.stop small{color:var(--ok)}
@@ -120,6 +123,13 @@ th{background:var(--accent-soft);color:var(--accent);font-size:.8rem;text-transf
 .zg b.tag{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
 .zg .z b.tag{color:var(--danger)}
 .zg .g b.tag{color:var(--ok)}
+
+/* Akış şeması -> aşama detayına atla */
+document.querySelectorAll("[data-goto]").forEach(function(n){
+  function go(){var d=document.getElementById(n.dataset.goto);if(!d)return;d.open=true;d.scrollIntoView({behavior:"smooth",block:"start"})}
+  n.addEventListener("click",go);
+  n.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
+});
 
 /* Quiz */
 .quiz-item{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:10px 0}
@@ -233,26 +243,78 @@ textarea#notlar{width:100%;min-height:110px;padding:12px;border:1.5px solid var(
   <p>Her loop, ne iş yaparsan yap, şu akışla döner. Kırmızı kesikli kutu, döngünün geri dönüş yoludur:</p>
 
   <div class="flow" role="img" aria-label="Loop akış şeması: Hedef ve bitti şartı yazılır, model adım seçer ve uygular, sonuca bakılır. Bitti şartı sağlandıysa dur ve raporla. Sağlanmadıysa maksimum tur kontrol edilir; dolmadıysa hata düzeltilerek yeni adıma dönülür, dolduysa durup rapor verilir.">
-    <div class="fbox start">BAŞLA<small>Hedefi + bitti şartını + freni yaz</small></div>
+    <div class="fbox start" data-goto="st0" role="button" tabindex="0">BAŞLA<small>Hedefi + bitti şartını + freni yaz</small></div>
     <div class="farrow"><svg width="16" height="26" aria-hidden="true"><line x1="8" y1="0" x2="8" y2="18" stroke="currentColor" stroke-width="2"/><path d="M2 16 L8 25 L14 16" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-    <div class="fbox">Model bir sonraki adımı belirler<small>"Hedefe varmak için şimdi ne yapmalıyım?"</small></div>
+    <div class="fbox" data-goto="st1" role="button" tabindex="0">Model bir sonraki adımı belirler<small>"Hedefe varmak için şimdi ne yapmalıyım?"</small></div>
     <div class="farrow"><svg width="16" height="26" aria-hidden="true"><line x1="8" y1="0" x2="8" y2="18" stroke="currentColor" stroke-width="2"/><path d="M2 16 L8 25 L14 16" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-    <div class="fbox">Adımı GERÇEKTEN uygular<small>kodu yazar, çalıştırır, arar, dosyayı düzenler</small></div>
+    <div class="fbox" data-goto="st2" role="button" tabindex="0">Adımı GERÇEKTEN uygular<small>kodu yazar, çalıştırır, arar, dosyayı düzenler</small></div>
     <div class="farrow"><svg width="16" height="26" aria-hidden="true"><line x1="8" y1="0" x2="8" y2="18" stroke="currentColor" stroke-width="2"/><path d="M2 16 L8 25 L14 16" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-    <div class="fbox">Sonuca bakar<small>çıktı, hata mesajı, ekran görüntüsü, kontrol listesi</small></div>
+    <div class="fbox" data-goto="st3" role="button" tabindex="0">Sonuca bakar<small>çıktı, hata mesajı, ekran görüntüsü, kontrol listesi</small></div>
     <div class="farrow"><svg width="16" height="26" aria-hidden="true"><line x1="8" y1="0" x2="8" y2="18" stroke="currentColor" stroke-width="2"/><path d="M2 16 L8 25 L14 16" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-    <div class="fdiamond">Bitti şartı sağlandı mı?</div>
+    <div class="fdiamond" data-goto="st4" role="button" tabindex="0">Bitti şartı sağlandı mı?</div>
     <div class="farrow"><span class="lbl yes">EVET</span><svg width="16" height="22" aria-hidden="true"><line x1="8" y1="0" x2="8" y2="14" stroke="currentColor" stroke-width="2"/><path d="M2 12 L8 21 L14 12" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-    <div class="fbox stop">DUR ✓<small>Sonucu raporla</small></div>
+    <div class="fbox stop" data-goto="st6" role="button" tabindex="0">DUR ✓<small>Sonucu raporla</small></div>
     <div class="farrow"><span class="lbl no">HAYIR ↓</span></div>
-    <div class="fdiamond">Maksimum tur doldu mu?</div>
+    <div class="fdiamond" data-goto="st5" role="button" tabindex="0">Maksimum tur doldu mu?</div>
     <div class="farrow"><span class="lbl no">HAYIR</span></div>
-    <div class="loopback">↻ Hatayı oku → sebebini bir cümleyle söyle → düzelt → yeni adıma dön (TUR + 1)</div>
+    <div class="loopback" data-goto="st5" role="button" tabindex="0">↻ Hatayı oku → sebebini bir cümleyle söyle → düzelt → yeni adıma dön (TUR + 1)</div>
     <div class="farrow"><span class="lbl yes">Maks. tur dolduysa: EVET ↓</span></div>
-    <div class="fbox stop" style="border-color:var(--danger);background:var(--danger-soft);color:var(--danger)">DUR ⚠<small style="color:var(--danger)">Geçen/kalan maddeleri tablo halinde raporla, kullanıcıya sor</small></div>
+    <div class="fbox stop" data-goto="st6" role="button" tabindex="0" style="border-color:var(--danger);background:var(--danger-soft);color:var(--danger)">DUR ⚠<small style="color:var(--danger)">Geçen/kalan maddeleri tablo halinde raporla, kullanıcıya sor</small></div>
   </div>
 
   <p>Buradaki her dönüşe bir <span class="term" tabindex="0">tur (iterasyon)<span class="tip">Döngünün bir kez dönmesi: adım uygula → sonuca bak → düzelt. "V1, V2, V3" denen şey art arda turlardır.</span></span> denir. <mark>Modelin sonucu görmeden çalışması "kör uçuş"tur</mark> — her turda çıktıyı, hata mesajını veya ekran görüntüsünü mutlaka kendi kendine kontrol ettirmelisin.</p>
+
+  <h3>Aşama aşama: ne oluyor, senin rolün ne, gerçek örnekler</h3>
+  <p>Şemadaki kutulara tıklayarak da ilgili aşamaya atlayabilirsin. Her aşamada iki örnek var: biri kod işi (🖥 TOURNI-ED / köstebek oyunu), biri araştırma işi (🔬 GAP avcısı).</p>
+
+  <details class="tpl stage" id="st0"><summary>⓪ BAŞLA — Hedefi, bitti şartını ve freni yaz<span class="chev">›</span></summary><div class="body">
+    <p><b>Ne oluyor:</b> Döngü daha dönmeye başlamadan bütün kurallar yazılır. <mark>Loop'un kaderi bu aşamada belirlenir</mark> — sonraki her aşama buradaki metne göre işler. Belirsiz başlangıç, sapıtan loop demektir.</p>
+    <p>🖥 <b>Kod örneği:</b> "Oyun yap" değil → "Köstebek vur oyunu; 4 madde: konsol hatasız, köstebek her saniye zıplıyor, tıklayınca skor +1, 30 sn'de 'Süre doldu: X' ekranı. Maks. 10 tur."</p>
+    <p>🔬 <b>Araştırma örneği:</b> "GAP bul" değil → "4 fizibilite kriterinin (boş mu, sahada yapılabilir mi, klinik önemi, tek merkezde olur mu) hepsinden ≥ 6 alan 3 GAP. Maks. 12 arama turu."</p>
+    <p><b>Sık hata:</b> Tek loop'a iki iş sıkıştırmak ("uygulamayı bitir, bir de özet yaz"). Her hedef ayrı loop olmalı — acilde iki hastayı aynı dosyaya yazmadığın gibi.</p>
+  </div></details>
+
+  <details class="tpl stage" id="st1"><summary>① Model bir sonraki adımı belirler<span class="chev">›</span></summary><div class="body">
+    <p><b>Ne oluyor:</b> Model mevcut duruma bakar — "neredeyim, listede hangi maddeler geçmedi?" — ve <mark>tek bir sonraki adım</mark> seçer. Tıpkı senin "önce hava yolu, sonra dolaşım" önceliklendirmen gibi: her turda bir öncelik.</p>
+    <p>🖥 <b>Kod örneği:</b> "5. madde (CSV eşleşmesi) geçmedi → şimdi CSV üreten fonksiyonu inceleyip Türkçe karakter kodlamasına bakmalıyım."</p>
+    <p>🔬 <b>Araştırma örneği:</b> "MeSH aramasında iki turdur yeni sonuç yok → sinonim stratejisine geçiyorum: 'tourniquet' yerine 'venous stasis', 'cuff'."</p>
+    <p><b>Senin rolün:</b> Normalde hiçbir şey. Ama model adım seçmek yerine uzun uzun plan anlatıp duruyorsa müdahale cümlen hazır: <i>"Konuşma, uygula."</i></p>
+  </div></details>
+
+  <details class="tpl stage" id="st2"><summary>② Adımı GERÇEKTEN uygular<span class="chev">›</span></summary><div class="body">
+    <p><b>Ne oluyor:</b> Normal sohbet ile loop'un ayrıldığı yer burası. Sohbet modeli <i>tarif eder</i> ("şöyle bir kod yazabilirsin"); <span class="term" tabindex="0">agent<span class="tip">Sadece konuşmakla kalmayıp araç kullanan (dosya yazan, komut çalıştıran, arama yapan) yapay zekâ.</span></span> ise <mark>yapar</mark>: dosyayı yazar, komutu çalıştırır, aramayı gerçekleştirir.</p>
+    <p>🖥 <b>Kod örneği:</b> index.html'i diske yazar, yerel sunucuda açar, tarayıcıyla sayfayı gerçekten yükler — "kod muhtemelen çalışır" demez, çalıştırır.</p>
+    <p>🔬 <b>Araştırma örneği:</b> PubMed'de aramayı gerçekten yapar ve künyeleri <i>arama sonucundan</i> alır. Hafızadan künye yazmak bu aşamanın ihlalidir (halüsinasyon riski).</p>
+    <p><b>Kontrol sorun:</b> Şüphelendiğinde: <i>"Bunu gerçekten çalıştırdın mı? Çıktısını olduğu gibi göster."</i></p>
+  </div></details>
+
+  <details class="tpl stage" id="st3"><summary>③ Sonuca bakar<span class="chev">›</span></summary><div class="body">
+    <p><b>Ne oluyor:</b> Kanıt toplama aşaması — senin "yeniden değerlendirme" vizitin. Kanıt türleri: <span class="term" tabindex="0">konsol<span class="tip">Tarayıcının hata günlüğü. Sayfada sağ tık → İncele → Console.</span></span> çıktısı, hata mesajı, ekran görüntüsü, sayım/karşılaştırma.</p>
+    <p>🖥 <b>Kod örneği:</b> Konsolda <code>Uncaught TypeError: skor is not defined</code> görür. Bu mesaj bir sonraki turun pusulasıdır — hastanın laktat değeri gibi: yorumlanır, atlanmaz.</p>
+    <p>🔬 <b>Araştırma örneği:</b> "Arama 42 sonuç döndürdü; başlık/özet taramasında 3'ü ilgili, hiçbiri acil serviste yapılmamış" — sayılarla konuşur.</p>
+    <p><b>Kritik kural:</b> <mark>Sonucu görmeden devam eden loop kör uçar.</mark> Model bu aşamayı atlıyorsa: <i>"Her adımın sonucunu bana göster, sonra devam et."</i></p>
+  </div></details>
+
+  <details class="tpl stage" id="st4"><summary>④ Karar: bitti şartı sağlandı mı?<span class="chev">›</span></summary><div class="body">
+    <p><b>Ne oluyor:</b> Sonuç, bitti listesiyle <mark>madde madde</mark> karşılaştırılır — izlenimle değil. Çıktı her turda kısmi skor olur: "4/6 geçti".</p>
+    <p>🖥 <b>Kod örneği:</b> "1, 2, 3 ve 6 geçti. 4 (zorunlu alan uyarısı çıkmıyor) ve 5 (CSV'de VKİ kolonu boş geliyor) geçmedi." → Döngü devam.</p>
+    <p>🔬 <b>Araştırma örneği:</b> "2 GAP adayı 4 kriterden de ≥ 6 aldı; 3. aday fizibiliteden 4 aldı, elendi. 2/3 tamam." → Döngü devam.</p>
+    <p><b>Sık hata:</b> Modelin kendini erken aklaması ("her şey çalışıyor görünüyor"). Panzehiri, maddelerin makine tarafından kontrol edilebilir yazılmış olmasıdır — bu yüzden Bölüm 3'teki zayıf/güçlü ayrımı bu kadar önemli.</p>
+  </div></details>
+
+  <details class="tpl stage" id="st5"><summary>⑤ Geri dönüş: fren kontrolü + hatayı düzelt<span class="chev">›</span></summary><div class="body">
+    <p><b>Ne oluyor:</b> Önce fren: "kaçıncı turdayım, limit doldu mu?" Dolmadıysa teşhis-tedavi: hatayı oku → <mark>sebebini BİR cümleyle söyle</mark> → düzelt → yeni tura dön. "Bir cümle" şartı süs değildir: modeli tahminle yama yapmaktan alıkoyar, seni de neyin değiştiğinden haberdar eder.</p>
+    <p>🖥 <b>Kod örneği:</b> "CSV'de Türkçe karakterler bozuk çünkü dosya UTF-8 imzası (BOM) olmadan kaydediliyor → imzayı ekledim, Excel'de yeniden açıp doğruladım."</p>
+    <p>🔬 <b>Araştırma örneği:</b> "'İlk' iddiam çürüdü çünkü pediatride benzer bir çalışma varmış → popülasyonu 'erişkin acil hastası' olarak daraltıp iddiayı yeniden test ediyorum."</p>
+    <p><b>Dikkat:</b> Düzeltme yeni şeyleri bozabilir (<span class="term" tabindex="0">regresyon<span class="tip">Bir hatayı düzeltirken önceden çalışan bir şeyi bozmak.</span></span>) — bu yüzden döngü başa döner ve TÜM liste yeniden test edilir, sadece düzeltilen madde değil.</p>
+  </div></details>
+
+  <details class="tpl stage" id="st6"><summary>⑥ DUR — iki farklı çıkış, iki farklı rapor<span class="chev">›</span></summary><div class="body">
+    <p><b>DUR ✓ (başarı):</b> Rapor = ne yapıldı + kanıtı ne. "4/4 madde geçti" yetmez; <i>her maddenin nasıl doğrulandığı</i> da yazılmalı ("3 sahte kayıtla CSV karşılaştırıldı, birebir eşleşti").</p>
+    <p><b>DUR ⚠ (fren doldu):</b> Dürüst durum raporu: geçen/kalan maddeler tablosu + takılınan yer + sana yöneltilmiş <mark>net bir soru</mark>. Bu başarısızlık değil, <b>konsültasyon istemidir</b> — "3 kez denedim, olmadı, kardiyolojiyi arıyorum" ile aynı profesyonel refleks.</p>
+    <p>🔬 <b>Araştırma örneği (⚠):</b> "12 tur doldu. 2 GAP doğrulandı, 3.sü için 'ilk'lik iddiası pediatri literatürüyle çelişiyor. Soru: popülasyonu daraltayım mı, yoksa bu GAP'i eleyip yeni mi arayayım?"</p>
+    <p><b>Senin rolün:</b> ⚠ raporunda karar vermek. Loop'un sana soru sorması onun zayıflığı değil, iyi kurulduğunun kanıtıdır — karar hakkı sende kalmıştır.</p>
+  </div></details>
 </section>
 
 <!-- 3 -->
@@ -544,6 +606,13 @@ document.querySelectorAll(".term").forEach(function(t){
     document.querySelectorAll(".term.open").forEach(function(o){if(o!==t)o.classList.remove("open")});
     t.classList.toggle("open");
   });
+});
+
+/* Akış şeması -> aşama detayına atla */
+document.querySelectorAll("[data-goto]").forEach(function(n){
+  function go(){var d=document.getElementById(n.dataset.goto);if(!d)return;d.open=true;d.scrollIntoView({behavior:"smooth",block:"start"})}
+  n.addEventListener("click",go);
+  n.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
 });
 
 /* Quiz */
