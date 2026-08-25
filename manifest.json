@@ -1,17 +1,26 @@
 {
   "name": "TOURNI-ED",
   "short_name": "TOURNI-ED",
-  "start_url": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#1a5c8a",
   "theme_color": "#1a5c8a",
+  "lang": "tr",
   "description": "TOURNI-ED v4.2 — RKÇ veri toplama / RCT data capture (TR/EN) — NCT07617103",
   "icons": [
     {
-      "src": "icon.svg",
+      "src": "./icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

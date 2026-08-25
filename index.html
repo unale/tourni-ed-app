@@ -7,6 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="TOURNI-ED">
+<meta name="theme-color" content="#1a5c8a">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/svg+xml" href="./icon.svg">
+<!-- iOS "Ana Ekrana Ekle" ikonu SVG kabul etmez; PNG şart -->
+<link rel="apple-touch-icon" href="./icon-180.png">
 <style>
 :root {
   --primary:#1a5c8a; --primary-dark:#134569; --secondary:#e8f4fc;
@@ -1656,6 +1661,17 @@ function initForm(){
 }
 
 loadLang();load();applyLang();initForm();checkBackup();updateEnrollBar();
+
+// --- Service worker: çevrimdışı çalışma ---
+// Göreli yol ('./sw.js') bilinçli: uygulama alan adının kökünde de,
+// /tourni-ed-app/ gibi bir alt dizinde de (GitHub Pages) doğru kaydolsun.
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js').catch(err=>{
+      console.warn('Service worker kaydedilemedi:',err);
+    });
+  });
+}
 </script>
 </body>
 </html>
