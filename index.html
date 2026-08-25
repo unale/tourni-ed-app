@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TOURNI-ED v4.1</title>
+<title>TOURNI-ED v4.2</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="TOURNI-ED">
@@ -21,6 +21,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 #header h1{font-size:17px;font-weight:700}
 #header .sub{font-size:11px;opacity:.8;margin-top:1px}
 #counter-badge{background:white;color:var(--primary);border-radius:20px;padding:4px 12px;font-weight:700;font-size:14px}
+#header .hdr-right{display:flex;align-items:center;gap:8px}
+#lang-switch{display:flex;gap:2px;background:rgba(255,255,255,.18);border-radius:20px;padding:2px}
+#lang-switch button{border:none;background:none;color:rgba(255,255,255,.75);font-size:11px;font-weight:700;padding:5px 10px;border-radius:18px;cursor:pointer;letter-spacing:.5px}
+#lang-switch button.active{background:white;color:var(--primary)}
 
 #nav{display:flex;background:white;border-bottom:2px solid var(--border);position:sticky;top:60px;z-index:99;overflow-x:auto}
 .nav-btn{flex:1;min-width:60px;padding:10px 4px;text-align:center;font-size:10px;font-weight:600;color:var(--gray);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap}
@@ -174,140 +178,146 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
 </head>
 <body>
 
-<div id="backup-banner" onclick="exportCSV()">⚠️ Yedek zamanı — CSV İndir →</div>
+<div id="backup-banner" onclick="exportCSV()" data-i18n="banner.backup">⚠️ Yedek zamanı — CSV İndir →</div>
 
 <div id="header">
   <div>
-    <div class="sub">NCT07617103 · Etik: 09.2026.829</div>
-    <h1>TOURNI-ED v4.1</h1>
+    <div class="sub">NCT07617103 · <span data-i18n="hdr.ethics">Etik</span>: 09.2026.829</div>
+    <h1>TOURNI-ED v4.2</h1>
   </div>
-  <div id="counter-badge">n=<span id="hdr-n">0</span></div>
+  <div class="hdr-right">
+    <div id="lang-switch">
+      <button type="button" id="lang-btn-tr" onclick="setLang('tr')">TR</button>
+      <button type="button" id="lang-btn-en" onclick="setLang('en')">EN</button>
+    </div>
+    <div id="counter-badge">n=<span id="hdr-n">0</span></div>
+  </div>
 </div>
 
 <div id="enroll-bar-wrap">
   <div id="enroll-bar-labels">
-    <span>Kayıt İlerlemesi</span>
-    <span class="enroll-pct"><span id="enroll-n">0</span> / 792 hasta &nbsp;<span id="enroll-pct-val">0%</span></span>
+    <span data-i18n="enroll.progress">Kayıt İlerlemesi</span>
+    <span class="enroll-pct"><span id="enroll-n">0</span> / 792 <span data-i18n="enroll.patients">hasta</span> &nbsp;<span id="enroll-pct-val">0%</span></span>
   </div>
   <div id="enroll-track"><div id="enroll-fill" style="width:0%"></div></div>
   <div id="enroll-sub">
-    <span>Grup A: <span id="enroll-a">0</span></span>
-    <span>Grup B: <span id="enroll-b">0</span></span>
+    <span><span data-i18n="group.A">Grup A</span>: <span id="enroll-a">0</span></span>
+    <span><span data-i18n="group.B">Grup B</span>: <span id="enroll-b">0</span></span>
   </div>
 </div>
 
 <div id="nav">
-  <button class="nav-btn active" onclick="showTab('form')" id="nbtn-form"><span>📋</span>Yeni Kayıt</button>
-  <button class="nav-btn" onclick="showTab('list')" id="nbtn-list"><span>📊</span>Hastalar</button>
-  <button class="nav-btn" onclick="showTab('export')" id="nbtn-export"><span>💾</span>Dışa Aktar</button>
+  <button class="nav-btn active" onclick="showTab('form')" id="nbtn-form"><span>📋</span><span data-i18n="nav.form">Yeni Kayıt</span></button>
+  <button class="nav-btn" onclick="showTab('list')" id="nbtn-list"><span>📊</span><span data-i18n="nav.list">Hastalar</span></button>
+  <button class="nav-btn" onclick="showTab('export')" id="nbtn-export"><span>💾</span><span data-i18n="nav.export">Dışa Aktar</span></button>
 </div>
 
 <!-- DÜZENLEME MODU BANNER -->
 <div id="edit-banner" style="display:none;background:#e67e22;color:white;padding:10px 16px;text-align:center;font-weight:700;font-size:13px">
-  ✏️ DÜZENLEME MODU — <span id="edit-banner-text"></span>
-  <button onclick="cancelEdit()" style="background:rgba(255,255,255,.25);border:none;color:white;margin-left:12px;padding:4px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600">✖ İptal</button>
+  <span data-i18n="edit.mode">✏️ DÜZENLEME MODU</span> — <span id="edit-banner-text"></span>
+  <button onclick="cancelEdit()" data-i18n="edit.cancel" style="background:rgba(255,255,255,.25);border:none;color:white;margin-left:12px;padding:4px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600">✖ İptal</button>
 </div>
 
 <div id="main">
 
 <!-- ========== TAB: YENİ HASTA ========== -->
 <div id="tab-form">
-<div class="section-title">📋 Yeni Hasta Kaydı</div>
+<div class="section-title" data-i18n="sec.form">📋 Yeni Hasta Kaydı</div>
 
 <!-- GRUP TALİMATI -->
 <div id="group-instr"></div>
 
 <!-- KİMLİK BİLGİLERİ -->
 <div class="card">
-  <div class="card-header">📋 Kimlik Bilgileri</div>
+  <div class="card-header" data-i18n="card.identity">📋 Kimlik Bilgileri</div>
   <div class="card-body">
     <div class="form-row">
       <div class="form-group">
-        <label>Sıra No</label>
+        <label data-i18n="f.sira_no">Sıra No</label>
         <input type="number" id="sira_no" class="input-readonly" readonly>
       </div>
       <div class="form-group">
-        <label>Hasta Dosya No</label>
+        <label data-i18n="f.dosya_no">Hasta Dosya No</label>
         <input type="text" id="hasta_dosya_no" placeholder="2026-12345">
       </div>
     </div>
     <div class="form-group">
-      <label>Hasta Kodu <span class="req">*</span></label>
-      <input type="text" id="hasta_adi_soyadi" placeholder="Ör: Mavi Kartal, T-001" autocomplete="off">
-      <div style="font-size:11px;color:var(--text-light);margin-top:4px">⚠️ Gerçek isim yazmayın — takma ad veya kod kullanın</div>
+      <label><span data-i18n="f.hasta_kodu">Hasta Kodu</span> <span class="req">*</span></label>
+      <input type="text" id="hasta_adi_soyadi" data-i18n-ph="ph.hasta_kodu" placeholder="Ör: Mavi Kartal, T-001" autocomplete="off">
+      <div style="font-size:11px;color:var(--text-light);margin-top:4px" data-i18n="note.noRealName">⚠️ Gerçek isim yazmayın — takma ad veya kod kullanın</div>
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label>Tarih</label>
+        <label data-i18n="f.tarih">Tarih</label>
         <input type="text" id="tarih" class="input-readonly" readonly>
       </div>
       <div class="form-group">
-        <label>Saat</label>
+        <label data-i18n="f.saat">Saat</label>
         <input type="text" id="saat" class="input-readonly" readonly>
       </div>
     </div>
     <div class="form-group">
-      <label>Hemşire Deneyimi (yıl)</label>
-      <input type="number" id="hemsire_deneyimi" placeholder="Örn: 5" min="0" max="50">
+      <label data-i18n="f.hemsire">Hemşire Deneyimi (yıl)</label>
+      <input type="number" id="hemsire_deneyimi" data-i18n-ph="ph.hemsire" placeholder="Örn: 5" min="0" max="50">
     </div>
     <div class="form-group">
-      <label>Randomizasyon Grubu</label>
-      <div id="rand-display">Hasta numarası atanınca belirlenir</div>
+      <label data-i18n="f.rand">Randomizasyon Grubu</label>
+      <div id="rand-display" data-i18n="rand.pending">Hasta numarası atanınca belirlenir</div>
     </div>
   </div>
 </div>
 
 <!-- A-DIVA SKALASI -->
 <div class="card">
-  <div class="card-header">🩸 A-DIVA Skalası <div class="badge">van Loon 2016</div></div>
+  <div class="card-header"><span data-i18n="card.adiva">🩸 A-DIVA Skalası</span> <div class="badge">van Loon 2016</div></div>
   <div class="card-body">
     <div class="adiva-item">
-      <div class="q">1. Geçmişte zor damar erişimi öyküsü</div>
-      <div class="q-desc">Hastanın daha önce kan alımında veya IV damar yolu açılmasında zorluk yaşandığını beyan etmesi (örn. "benden kan almak çok zor olur").</div>
+      <div class="q" data-i18n="adiva.q1">1. Geçmişte zor damar erişimi öyküsü</div>
+      <div class="q-desc" data-i18n="adiva.d1">Hastanın daha önce kan alımında veya IV damar yolu açılmasında zorluk yaşandığını beyan etmesi (örn. "benden kan almak çok zor olur").</div>
       <div class="btn-select yes-no">
-        <div><input type="radio" name="adiva1" id="a1_0" value="0" onchange="calcADIVA()"><label for="a1_0" class="yes-lbl">Hayır (0)</label></div>
-        <div><input type="radio" name="adiva1" id="a1_1" value="1" onchange="calcADIVA()"><label for="a1_1" class="no-lbl">Evet (1)</label></div>
+        <div><input type="radio" name="adiva1" id="a1_0" value="0" onchange="calcADIVA()"><label for="a1_0" class="yes-lbl" data-i18n="adiva.a1_0">Hayır (0)</label></div>
+        <div><input type="radio" name="adiva1" id="a1_1" value="1" onchange="calcADIVA()"><label for="a1_1" class="no-lbl" data-i18n="adiva.a1_1">Evet (1)</label></div>
       </div>
     </div>
     <div class="adiva-item">
-      <div class="q">2. Ven palpe edilemiyor</div>
-      <div class="q-desc">Antekübital fossada veya ön kolda parmakla dokunarak ven hissedilemiyor.</div>
+      <div class="q" data-i18n="adiva.q2">2. Ven palpe edilemiyor</div>
+      <div class="q-desc" data-i18n="adiva.d2">Antekübital fossada veya ön kolda parmakla dokunarak ven hissedilemiyor.</div>
       <div class="btn-select yes-no">
-        <div><input type="radio" name="adiva2" id="a2_0" value="0" onchange="calcADIVA()"><label for="a2_0" class="yes-lbl">Palpe edilir (0)</label></div>
-        <div><input type="radio" name="adiva2" id="a2_1" value="1" onchange="calcADIVA()"><label for="a2_1" class="no-lbl">Palpe edilemez (1)</label></div>
+        <div><input type="radio" name="adiva2" id="a2_0" value="0" onchange="calcADIVA()"><label for="a2_0" class="yes-lbl" data-i18n="adiva.a2_0">Palpe edilir (0)</label></div>
+        <div><input type="radio" name="adiva2" id="a2_1" value="1" onchange="calcADIVA()"><label for="a2_1" class="no-lbl" data-i18n="adiva.a2_1">Palpe edilemez (1)</label></div>
       </div>
     </div>
     <div class="adiva-item">
-      <div class="q">3. Ven görünmüyor</div>
-      <div class="q-desc">Antekübital fossada veya ön kolda turnike olmadan venin gözle görülmemesi.</div>
+      <div class="q" data-i18n="adiva.q3">3. Ven görünmüyor</div>
+      <div class="q-desc" data-i18n="adiva.d3">Antekübital fossada veya ön kolda turnike olmadan venin gözle görülmemesi.</div>
       <div class="btn-select yes-no">
-        <div><input type="radio" name="adiva3" id="a3_0" value="0" onchange="calcADIVA()"><label for="a3_0" class="yes-lbl">Görünür (0)</label></div>
-        <div><input type="radio" name="adiva3" id="a3_1" value="1" onchange="calcADIVA()"><label for="a3_1" class="no-lbl">Görünmez (1)</label></div>
+        <div><input type="radio" name="adiva3" id="a3_0" value="0" onchange="calcADIVA()"><label for="a3_0" class="yes-lbl" data-i18n="adiva.a3_0">Görünür (0)</label></div>
+        <div><input type="radio" name="adiva3" id="a3_1" value="1" onchange="calcADIVA()"><label for="a3_1" class="no-lbl" data-i18n="adiva.a3_1">Görünmez (1)</label></div>
       </div>
     </div>
     <div class="adiva-item">
-      <div class="q">4. Ven çapı &lt; 3 mm</div>
-      <div class="q-desc">Gözlem veya palpasyonla venin ince (yaklaşık bir kibrit çöpü kalınlığında veya daha ince) olduğunun belirlenmesi.</div>
+      <div class="q" data-i18n="adiva.q4">4. Ven çapı &lt; 3 mm</div>
+      <div class="q-desc" data-i18n="adiva.d4">Gözlem veya palpasyonla venin ince (yaklaşık bir kibrit çöpü kalınlığında veya daha ince) olduğunun belirlenmesi.</div>
       <div class="btn-select yes-no">
         <div><input type="radio" name="adiva4" id="a4_0" value="0" onchange="calcADIVA()"><label for="a4_0" class="yes-lbl">≥ 3 mm (0)</label></div>
         <div><input type="radio" name="adiva4" id="a4_1" value="1" onchange="calcADIVA()"><label for="a4_1" class="no-lbl">&lt; 3 mm (1)</label></div>
       </div>
     </div>
     <div class="adiva-item">
-      <div class="q">5. VKİ ≥ 26 kg/m²</div>
-      <div class="q-desc">Boy/kilo girilince VKİ'ye göre otomatik güncellenir; gerekirse şimdi elle de işaretleyebilirsiniz.</div>
+      <div class="q" data-i18n="adiva.q5">5. VKİ ≥ 26 kg/m²</div>
+      <div class="q-desc" data-i18n="adiva.d5">Boy/kilo girilince VKİ'ye göre otomatik güncellenir; gerekirse şimdi elle de işaretleyebilirsiniz.</div>
       <div class="btn-select yes-no">
-        <div><input type="radio" name="adiva5" id="a5_0" value="0" onchange="calcADIVA()"><label for="a5_0" class="yes-lbl">VKİ &lt; 26 (0)</label></div>
-        <div><input type="radio" name="adiva5" id="a5_1" value="1" onchange="calcADIVA()"><label for="a5_1" class="no-lbl">VKİ ≥ 26 (1)</label></div>
+        <div><input type="radio" name="adiva5" id="a5_0" value="0" onchange="calcADIVA()"><label for="a5_0" class="yes-lbl" data-i18n="adiva.a5_0">VKİ &lt; 26 (0)</label></div>
+        <div><input type="radio" name="adiva5" id="a5_1" value="1" onchange="calcADIVA()"><label for="a5_1" class="no-lbl" data-i18n="adiva.a5_1">VKİ ≥ 26 (1)</label></div>
       </div>
     </div>
     <div style="display:flex;align-items:center;margin-top:12px;padding:12px;background:var(--light);border-radius:8px">
       <div>
-        <div style="font-size:11px;color:var(--text-light);font-weight:600;text-transform:uppercase">A-DIVA Toplam</div>
+        <div style="font-size:11px;color:var(--text-light);font-weight:600;text-transform:uppercase" data-i18n="adiva.total">A-DIVA Toplam</div>
         <div style="display:flex;align-items:baseline;gap:6px;margin-top:4px">
           <span id="adiva-total">0</span>
           <span style="font-size:13px;color:var(--text-light)">/5</span>
-          <span id="adiva-result" style="font-size:13px;font-weight:600;color:var(--green)">✅ Kolay erişim</span>
+          <span id="adiva-result" style="font-size:13px;font-weight:600;color:var(--green)" data-i18n="adiva.easy">✅ Kolay erişim</span>
         </div>
       </div>
     </div>
@@ -316,78 +326,78 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
 
 <!-- DEMOGRAFİK -->
 <div class="card">
-  <div class="card-header">👤 Demografik</div>
+  <div class="card-header" data-i18n="card.demo">👤 Demografik</div>
   <div class="card-body">
     <div class="form-row">
       <div class="form-group">
-        <label>Yaş</label>
+        <label data-i18n="f.yas">Yaş</label>
         <input type="number" id="yas" min="18" max="120" placeholder="45" oninput="calcBMI()">
       </div>
       <div class="form-group">
-        <label>Cinsiyet <span class="req">*</span></label>
+        <label><span data-i18n="f.cinsiyet">Cinsiyet</span> <span class="req">*</span></label>
         <div class="btn-select">
-          <div><input type="radio" name="cinsiyet" id="cin_k" value="K"><label for="cin_k">Kadın</label></div>
-          <div><input type="radio" name="cinsiyet" id="cin_e" value="E"><label for="cin_e">Erkek</label></div>
+          <div><input type="radio" name="cinsiyet" id="cin_k" value="K"><label for="cin_k" data-i18n="opt.female">Kadın</label></div>
+          <div><input type="radio" name="cinsiyet" id="cin_e" value="E"><label for="cin_e" data-i18n="opt.male">Erkek</label></div>
         </div>
       </div>
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label>Boy (cm) <span class="req">*</span></label>
+        <label><span data-i18n="f.boy">Boy (cm)</span> <span class="req">*</span></label>
         <input type="number" id="boy" min="100" max="230" placeholder="168" oninput="calcBMI()">
       </div>
       <div class="form-group">
-        <label>Kilo (kg) <span class="req">*</span></label>
+        <label><span data-i18n="f.kilo">Kilo (kg)</span> <span class="req">*</span></label>
         <input type="number" id="kilo" min="20" max="300" placeholder="75" oninput="calcBMI()">
       </div>
     </div>
     <div class="form-group">
-      <label>VKİ (kg/m²)</label>
-      <input type="text" id="vki" readonly class="input-readonly" placeholder="Otomatik">
+      <label data-i18n="f.vki">VKİ (kg/m²)</label>
+      <input type="text" id="vki" readonly class="input-readonly" data-i18n-ph="ph.auto" placeholder="Otomatik">
     </div>
     <div class="form-group">
-      <label>Triaj Kategorisi</label>
+      <label data-i18n="f.triaj">Triaj Kategorisi</label>
       <div class="btn-select">
-        <div><input type="radio" name="triaj" id="tr1" value="1"><label for="tr1" style="border-color:#e74c3c">🔴 Kırmızı</label></div>
-        <div><input type="radio" name="triaj" id="tr2" value="2"><label for="tr2" style="border-color:#f39c12">🟡 Sarı</label></div>
-        <div><input type="radio" name="triaj" id="tr3" value="3"><label for="tr3" style="border-color:#27ae60">🟢 Yeşil</label></div>
+        <div><input type="radio" name="triaj" id="tr1" value="1"><label for="tr1" style="border-color:#e74c3c" data-i18n="tri.red">🔴 Kırmızı</label></div>
+        <div><input type="radio" name="triaj" id="tr2" value="2"><label for="tr2" style="border-color:#f39c12" data-i18n="tri.yellow">🟡 Sarı</label></div>
+        <div><input type="radio" name="triaj" id="tr3" value="3"><label for="tr3" style="border-color:#27ae60" data-i18n="tri.green">🟢 Yeşil</label></div>
       </div>
     </div>
     <div class="form-group">
-      <label>Başvuru Şikayeti</label>
+      <label data-i18n="f.sikayet">Başvuru Şikayeti</label>
       <div class="btn-select" style="flex-wrap:wrap">
-        <div><input type="radio" name="sikayeti" id="sk1" value="Göğüs ağrısı"><label for="sk1">Göğüs ağrısı</label></div>
-        <div><input type="radio" name="sikayeti" id="sk2" value="Karın ağrısı"><label for="sk2">Karın ağrısı</label></div>
-        <div><input type="radio" name="sikayeti" id="sk3" value="Nefes darlığı"><label for="sk3">Nefes darlığı</label></div>
-        <div><input type="radio" name="sikayeti" id="sk4" value="Diğer"><label for="sk4">Diğer</label></div>
+        <div><input type="radio" name="sikayeti" id="sk1" value="Göğüs ağrısı"><label for="sk1" data-i18n="sik.chest">Göğüs ağrısı</label></div>
+        <div><input type="radio" name="sikayeti" id="sk2" value="Karın ağrısı"><label for="sk2" data-i18n="sik.abdo">Karın ağrısı</label></div>
+        <div><input type="radio" name="sikayeti" id="sk3" value="Nefes darlığı"><label for="sk3" data-i18n="sik.dysp">Nefes darlığı</label></div>
+        <div><input type="radio" name="sikayeti" id="sk4" value="Diğer"><label for="sk4" data-i18n="opt.other">Diğer</label></div>
       </div>
-      <input type="text" id="sikayeti_diger" placeholder="Şikayeti yazın..." style="margin-top:8px;display:none">
+      <input type="text" id="sikayeti_diger" data-i18n-ph="ph.sikayet" placeholder="Şikayeti yazın..." style="margin-top:8px;display:none">
     </div>
   </div>
 </div>
 
 <!-- KLİNİK -->
 <div class="card">
-  <div class="card-header">💊 Klinik</div>
+  <div class="card-header" data-i18n="card.clinical">💊 Klinik</div>
   <div class="card-body">
     <div class="form-group">
-      <label>Komorbidite</label>
+      <label data-i18n="f.komorbidite">Komorbidite</label>
       <div class="check-group" id="komorbidite-group">
         <div class="check-option"><input type="checkbox" id="dm" value="DM"><label for="dm">DM</label></div>
         <div class="check-option"><input type="checkbox" id="htn" value="HTN"><label for="htn">HT</label></div>
-        <div class="check-option"><input type="checkbox" id="kalp" value="KH"><label for="kalp">Kalp</label></div>
-        <div class="check-option"><input type="checkbox" id="bby" value="BBY"><label for="bby">BBY</label></div>
-        <div class="check-option"><input type="checkbox" id="mal" value="MAL"><label for="mal">Kanser</label></div>
-        <div class="check-option"><input type="checkbox" id="yok" value="YOK"><label for="yok">Yok</label></div>
-        <div class="check-option"><input type="checkbox" id="kom_dig" value="Diğer" onchange="toggleKomDiger(this)"><label for="kom_dig">Diğer</label></div>
+        <div class="check-option"><input type="checkbox" id="kalp" value="KH"><label for="kalp" data-i18n="kom.cardiac">Kalp</label></div>
+        <div class="check-option"><input type="checkbox" id="bby" value="BBY"><label for="bby" data-i18n="kom.renal">BBY</label></div>
+        <div class="check-option"><input type="checkbox" id="mal" value="MAL"><label for="mal" data-i18n="kom.cancer">Kanser</label></div>
+        <div class="check-option"><input type="checkbox" id="yok" value="YOK"><label for="yok" data-i18n="opt.none">Yok</label></div>
+        <div class="check-option"><input type="checkbox" id="kom_dig" value="Diğer" onchange="toggleKomDiger(this)"><label for="kom_dig" data-i18n="opt.other">Diğer</label></div>
       </div>
-      <input type="text" id="komorbidite_diger" placeholder="Komorbiditeyi belirtin..." style="margin-top:8px;display:none">
+      <input type="text" id="komorbidite_diger" data-i18n-ph="ph.komorbidite" placeholder="Komorbiditeyi belirtin..." style="margin-top:8px;display:none">
     </div>
     <div class="form-group">
-      <label>Antikoagülan</label>
+      <label data-i18n="f.antikuag">Antikoagülan</label>
       <div class="btn-select yes-no">
-        <div><input type="radio" name="antikuag" id="ak_e" value="1"><label for="ak_e" class="yes-lbl">Var</label></div>
-        <div><input type="radio" name="antikuag" id="ak_h" value="0"><label for="ak_h" class="no-lbl">Yok</label></div>
+        <div><input type="radio" name="antikuag" id="ak_e" value="1"><label for="ak_e" class="yes-lbl" data-i18n="opt.present">Var</label></div>
+        <div><input type="radio" name="antikuag" id="ak_h" value="0"><label for="ak_h" class="no-lbl" data-i18n="opt.absent">Yok</label></div>
       </div>
     </div>
   </div>
@@ -395,54 +405,54 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
 
 <!-- TURNİKE -->
 <div class="card" id="sw-card">
-  <div class="card-header">⏱️ Turnike Süresi</div>
+  <div class="card-header" data-i18n="card.turnike">⏱️ Turnike Süresi</div>
   <div class="card-body" style="text-align:center">
     <div id="stopwatch-display">00:00</div>
-    <div style="font-size:11px;color:var(--text-light);margin-top:4px">Hedef: ≤ 60 saniye</div>
+    <div style="font-size:11px;color:var(--text-light);margin-top:4px" data-i18n="sw.target">Hedef: ≤ 60 saniye</div>
     <div class="sw-btns">
-      <button class="btn btn-success" onclick="swStart()" id="sw-start-btn">▶ Başlat</button>
-      <button class="btn btn-gray" onclick="swStop()" id="sw-stop-btn" disabled>⏹ Durdur</button>
-      <button class="btn btn-outline" onclick="swReset()">↺ Sıfırla</button>
+      <button class="btn btn-success" onclick="swStart()" id="sw-start-btn" data-i18n="sw.start">▶ Başlat</button>
+      <button class="btn btn-gray" onclick="swStop()" id="sw-stop-btn" disabled data-i18n="sw.stop">⏹ Durdur</button>
+      <button class="btn btn-outline" onclick="swReset()" data-i18n="sw.reset">↺ Sıfırla</button>
     </div>
     <div class="form-group" style="margin-top:14px;text-align:left">
-      <label>Turnike Süresi (sn)</label>
-      <input type="number" id="turnike_suresi" placeholder="Stopwatch'tan otomatik" min="0">
+      <label data-i18n="f.turnike_sn">Turnike Süresi (sn)</label>
+      <input type="number" id="turnike_suresi" data-i18n-ph="ph.turnike" placeholder="Stopwatch'tan otomatik" min="0">
     </div>
   </div>
 </div>
 
 <!-- KAN ALMA DURUMU -->
 <div class="card">
-  <div class="card-header">🩺 Kan Alma Durumu</div>
+  <div class="card-header" data-i18n="card.draw">🩺 Kan Alma Durumu</div>
   <div class="card-body">
     <div class="btn-select yes-no">
-      <div><input type="radio" name="kan_alindi" id="ka_e" value="1" onchange="toggleStopwatch(1)"><label for="ka_e" class="yes-lbl">✅ Kan alındı</label></div>
-      <div><input type="radio" name="kan_alindi" id="ka_h" value="0" onchange="toggleStopwatch(0)"><label for="ka_h" class="no-lbl">❌ Alınamadı (CONSORT)</label></div>
+      <div><input type="radio" name="kan_alindi" id="ka_e" value="1" onchange="toggleStopwatch(1)"><label for="ka_e" class="yes-lbl" data-i18n="draw.yes">✅ Kan alındı</label></div>
+      <div><input type="radio" name="kan_alindi" id="ka_h" value="0" onchange="toggleStopwatch(0)"><label for="ka_h" class="no-lbl" data-i18n="draw.no">❌ Alınamadı (CONSORT)</label></div>
     </div>
-    <div style="font-size:12px;color:var(--text-light);margin-top:8px">Kan alınamasa da hasta çalışmaya dahildir — CONSORT akış şeması için kayıt tutulur.</div>
+    <div style="font-size:12px;color:var(--text-light);margin-top:8px" data-i18n="draw.note">Kan alınamasa da hasta çalışmaya dahildir — CONSORT akış şeması için kayıt tutulur.</div>
   </div>
 </div>
 
 <!-- SİPARİŞ EDİLEN TESTLER -->
 <div class="card">
-  <div class="card-header">🧪 Sipariş Edilen Testler</div>
+  <div class="card-header" data-i18n="card.tests">🧪 Sipariş Edilen Testler</div>
   <div class="card-body">
     <div class="check-group">
-      <div class="check-option"><input type="checkbox" id="t_hgm" value="HGM"><label for="t_hgm">HGM</label></div>
-      <div class="check-option"><input type="checkbox" id="t_bkm" value="BKM"><label for="t_bkm">Biyokimya</label></div>
-      <div class="check-option"><input type="checkbox" id="t_kog" value="KOG"><label for="t_kog">Koagülasyon</label></div>
-      <div class="check-option"><input type="checkbox" id="t_kgr" value="KGR"><label for="t_kgr">Kan grubu</label></div>
-      <div class="check-option"><input type="checkbox" id="t_idr" value="İDR"><label for="t_idr">İdrar</label></div>
+      <div class="check-option"><input type="checkbox" id="t_hgm" value="HGM"><label for="t_hgm" data-i18n="test.cbc">HGM</label></div>
+      <div class="check-option"><input type="checkbox" id="t_bkm" value="BKM"><label for="t_bkm" data-i18n="test.biochem">Biyokimya</label></div>
+      <div class="check-option"><input type="checkbox" id="t_kog" value="KOG"><label for="t_kog" data-i18n="test.coag">Koagülasyon</label></div>
+      <div class="check-option"><input type="checkbox" id="t_kgr" value="KGR"><label for="t_kgr" data-i18n="test.bloodgroup">Kan grubu</label></div>
+      <div class="check-option"><input type="checkbox" id="t_idr" value="İDR"><label for="t_idr" data-i18n="test.urine">İdrar</label></div>
     </div>
   </div>
 </div>
 
 <!-- VAS AĞRI SKORU -->
 <div class="card">
-  <div class="card-header">⚠️ VAS Ağrı Skoru</div>
+  <div class="card-header" data-i18n="card.vas">⚠️ VAS Ağrı Skoru</div>
   <div class="card-body">
     <div class="form-group">
-      <label>Hasta Ağrı Skoru (0–10)</label>
+      <label data-i18n="f.vas">Hasta Ağrı Skoru (0–10)</label>
       <div class="btn-select" style="flex-wrap:wrap">
         <div><input type="radio" name="vas" id="vas0" value="0"><label for="vas0">0</label></div>
         <div><input type="radio" name="vas" id="vas1" value="1"><label for="vas1">1</label></div>
@@ -456,33 +466,33 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
         <div><input type="radio" name="vas" id="vas9" value="9"><label for="vas9">9</label></div>
         <div><input type="radio" name="vas" id="vas10" value="10"><label for="vas10">10</label></div>
       </div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-light);margin-top:4px"><span>Ağrı yok</span><span>Dayanılmaz ağrı</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-light);margin-top:4px"><span data-i18n="vas.none">Ağrı yok</span><span data-i18n="vas.worst">Dayanılmaz ağrı</span></div>
     </div>
   </div>
 </div>
 
 <!-- KOMPLİKASYON -->
 <div class="card">
-  <div class="card-header">🩹 Komplikasyon</div>
+  <div class="card-header" data-i18n="card.komp">🩹 Komplikasyon</div>
   <div class="card-body">
     <div class="form-group">
-      <label>Komplikasyon gelişti mi?</label>
+      <label data-i18n="f.kompVar">Komplikasyon gelişti mi?</label>
       <div class="btn-select yes-no">
-        <div><input type="radio" name="komp_var" id="kv_h" value="0" onchange="toggleKomp(0)"><label for="kv_h" class="yes-lbl">Hayır</label></div>
-        <div><input type="radio" name="komp_var" id="kv_e" value="1" onchange="toggleKomp(1)"><label for="kv_e" class="no-lbl">Evet</label></div>
+        <div><input type="radio" name="komp_var" id="kv_h" value="0" onchange="toggleKomp(0)"><label for="kv_h" class="yes-lbl" data-i18n="opt.no">Hayır</label></div>
+        <div><input type="radio" name="komp_var" id="kv_e" value="1" onchange="toggleKomp(1)"><label for="kv_e" class="no-lbl" data-i18n="opt.yes">Evet</label></div>
       </div>
     </div>
     <div id="komp-detail" style="display:none">
       <div class="form-group">
-        <label>Komplikasyon türü</label>
+        <label data-i18n="f.kompTur">Komplikasyon türü</label>
         <div class="check-group" style="flex-wrap:wrap">
-          <div class="check-option" style="min-width:120px"><input type="checkbox" id="kp_hem" value="Hematom"><label for="kp_hem">Hematom</label></div>
-          <div class="check-option" style="min-width:120px"><input type="checkbox" id="kp_sin" value="Sinir hasarı"><label for="kp_sin">Sinir hasarı</label></div>
-          <div class="check-option" style="min-width:120px"><input type="checkbox" id="kp_vaz" value="Vazovagal"><label for="kp_vaz">Vazovagal</label></div>
-          <div class="check-option" style="min-width:120px"><input type="checkbox" id="kp_art" value="Arteriyel ponksiyon"><label for="kp_art">Arteriyel ponksiyon</label></div>
-          <div class="check-option" style="min-width:120px"><input type="checkbox" id="kp_dig" value="Diğer"><label for="kp_dig">Diğer</label></div>
+          <div class="check-option" style="min-width:120px"><input type="checkbox" id="kp_hem" value="Hematom"><label for="kp_hem" data-i18n="kp.hematoma">Hematom</label></div>
+          <div class="check-option" style="min-width:120px"><input type="checkbox" id="kp_sin" value="Sinir hasarı"><label for="kp_sin" data-i18n="kp.nerve">Sinir hasarı</label></div>
+          <div class="check-option" style="min-width:120px"><input type="checkbox" id="kp_vaz" value="Vazovagal"><label for="kp_vaz" data-i18n="kp.vasovagal">Vazovagal</label></div>
+          <div class="check-option" style="min-width:120px"><input type="checkbox" id="kp_art" value="Arteriyel ponksiyon"><label for="kp_art" data-i18n="kp.arterial">Arteriyel ponksiyon</label></div>
+          <div class="check-option" style="min-width:120px"><input type="checkbox" id="kp_dig" value="Diğer"><label for="kp_dig" data-i18n="opt.other">Diğer</label></div>
         </div>
-        <input type="text" id="komp_aciklama" placeholder="Açıklama..." style="margin-top:8px">
+        <input type="text" id="komp_aciklama" data-i18n-ph="ph.komp" placeholder="Açıklama..." style="margin-top:8px">
       </div>
     </div>
   </div>
@@ -490,10 +500,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
 
 <!-- DAMAR ERİŞİMİ -->
 <div class="card">
-  <div class="card-header">📍 Damar Erişimi</div>
+  <div class="card-header" data-i18n="card.access">📍 Damar Erişimi</div>
   <div class="card-body">
     <div class="form-group">
-      <label>Deneme Sayısı</label>
+      <label data-i18n="f.deneme">Deneme Sayısı</label>
       <div class="btn-select">
         <div><input type="radio" name="deneme" id="dn1" value="1"><label for="dn1">1</label></div>
         <div><input type="radio" name="deneme" id="dn2" value="2"><label for="dn2">2</label></div>
@@ -502,12 +512,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
       </div>
     </div>
     <div class="form-group">
-      <label>Kanülasyon Bölgesi</label>
+      <label data-i18n="f.bolge">Kanülasyon Bölgesi</label>
       <div class="btn-select" style="flex-wrap:wrap">
-        <div><input type="radio" name="bolge" id="bl1" value="Antekubital fossa"><label for="bl1">Antekubital fossa</label></div>
-        <div><input type="radio" name="bolge" id="bl2" value="Önkol"><label for="bl2">Önkol</label></div>
-        <div><input type="radio" name="bolge" id="bl3" value="El sırtı"><label for="bl3">El sırtı</label></div>
-        <div><input type="radio" name="bolge" id="bl4" value="Dirsek üstü"><label for="bl4">Dirsek üstü</label></div>
+        <div><input type="radio" name="bolge" id="bl1" value="Antekubital fossa"><label for="bl1" data-i18n="bl.acf">Antekubital fossa</label></div>
+        <div><input type="radio" name="bolge" id="bl2" value="Önkol"><label for="bl2" data-i18n="bl.forearm">Önkol</label></div>
+        <div><input type="radio" name="bolge" id="bl3" value="El sırtı"><label for="bl3" data-i18n="bl.hand">El sırtı</label></div>
+        <div><input type="radio" name="bolge" id="bl4" value="Dirsek üstü"><label for="bl4" data-i18n="bl.upper">Dirsek üstü</label></div>
       </div>
     </div>
   </div>
@@ -515,9 +525,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
 
 <!-- NOT -->
 <div class="card">
-  <div class="card-header">📝 Not</div>
+  <div class="card-header" data-i18n="card.note">📝 Not</div>
   <div class="card-body">
-    <textarea id="notlar" rows="3" placeholder="Varsa ek notlar..." style="resize:vertical"></textarea>
+    <textarea id="notlar" rows="3" data-i18n-ph="ph.notlar" placeholder="Varsa ek notlar..." style="resize:vertical"></textarea>
   </div>
 </div>
 
@@ -528,26 +538,26 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
 
 <!-- ========== TAB: HASTA LİSTESİ ========== -->
 <div id="tab-list" style="display:none">
-<div class="section-title" style="margin-top:0">📊 Hasta Listesi</div>
+<div class="section-title" style="margin-top:0" data-i18n="sec.list">📊 Hasta Listesi</div>
 
 <div class="stat-grid">
-  <div class="stat-box"><div class="val" id="st-total">0</div><div class="lbl">Toplam</div></div>
-  <div class="stat-box green"><div class="val" id="st-a">0</div><div class="lbl">Grup A</div></div>
-  <div class="stat-box red"><div class="val" id="st-b">0</div><div class="lbl">Grup B</div></div>
-  <div class="stat-box orange"><div class="val" id="st-lab">0</div><div class="lbl">Lab Bekliyor</div></div>
+  <div class="stat-box"><div class="val" id="st-total">0</div><div class="lbl" data-i18n="st.total">Toplam</div></div>
+  <div class="stat-box green"><div class="val" id="st-a">0</div><div class="lbl" data-i18n="group.A">Grup A</div></div>
+  <div class="stat-box red"><div class="val" id="st-b">0</div><div class="lbl" data-i18n="group.B">Grup B</div></div>
+  <div class="stat-box orange"><div class="val" id="st-lab">0</div><div class="lbl" data-i18n="st.lab">Lab Bekliyor</div></div>
 </div>
 
 <div class="card">
-  <div class="card-header">📊 Hasta Listesi <div class="badge" style="font-size:10px">Lab girmek için satıra dokun</div></div>
+  <div class="card-header"><span data-i18n="sec.list">📊 Hasta Listesi</span> <div class="badge" style="font-size:10px" data-i18n="list.hint">Lab girmek için satıra dokun</div></div>
   <div id="list-tools">
     <button class="btn btn-sm btn-gray" id="sel-toggle" onclick="toggleSelectMode()">☑️ Seç</button>
-    <button class="btn btn-sm btn-gray" id="sel-all" onclick="selectAll()" style="display:none">Tümünü seç</button>
+    <button class="btn btn-sm btn-gray" id="sel-all" onclick="selectAll()" style="display:none" data-i18n="sel.all">Tümünü seç</button>
     <button class="btn btn-sm btn-danger" id="sel-del" onclick="deleteSelected()" style="display:none">🗑 Seçilenleri sil (0)</button>
-    <button class="btn btn-sm btn-gray" id="del-test" onclick="deleteTestPatients()" style="display:none">🧪 Deneme kayıtlarını sil</button>
+    <button class="btn btn-sm btn-gray" id="del-test" onclick="deleteTestPatients()" style="display:none" data-i18n="del.test">🧪 Deneme kayıtlarını sil</button>
     <span class="test-count" id="test-count"></span>
   </div>
   <div class="card-body" id="pt-list-body">
-    <div style="text-align:center;color:var(--text-light);padding:24px">Henüz kayıt yok</div>
+    <div style="text-align:center;color:var(--text-light);padding:24px" data-i18n="list.empty">Henüz kayıt yok</div>
   </div>
 </div>
 
@@ -555,32 +565,33 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
 
 <!-- ========== TAB: DIŞA AKTARMA ========== -->
 <div id="tab-export" style="display:none">
-<div class="section-title" style="margin-top:0">💾 Dışa Aktarma</div>
+<div class="section-title" style="margin-top:0" data-i18n="sec.export">💾 Dışa Aktarma</div>
 
 <div class="card">
-  <div class="card-header">💾 Veri Dışa Aktarma</div>
+  <div class="card-header" data-i18n="card.export">💾 Veri Dışa Aktarma</div>
   <div class="card-body">
-    <button class="btn btn-success btn-lg" onclick="exportXLS()">📊 Excel İndir (.xls)</button>
-    <button class="btn btn-primary btn-lg" onclick="exportCSV()" style="margin-top:8px">📥 CSV İndir</button>
-    <button class="btn btn-outline btn-lg" onclick="exportJSON()" style="margin-top:8px">📦 JSON Yedek (Tam)</button>
+    <button class="btn btn-success btn-lg" onclick="exportXLS()" data-i18n="btn.xls">📊 Excel İndir (.xls)</button>
+    <button class="btn btn-primary btn-lg" onclick="exportCSV()" style="margin-top:8px" data-i18n="btn.csv">📥 CSV İndir</button>
+    <button class="btn btn-outline btn-lg" onclick="exportJSON()" style="margin-top:8px" data-i18n="btn.json">📦 JSON Yedek (Tam)</button>
+    <p style="font-size:11px;color:var(--text-light);margin-top:10px;line-height:1.5" data-i18n="export.colnote">ℹ️ Sütun başlıkları dil ayarından bağımsız olarak sabittir (<code>sira_no</code>, <code>hi_skala</code>, …) — analiz betikleri her iki dilde de aynı dosya yapısını görür.</p>
   </div>
 </div>
 
 <div class="card">
-  <div class="card-header">📤 JSON Geri Yükle</div>
+  <div class="card-header" data-i18n="card.import">📤 JSON Geri Yükle</div>
   <div class="card-body">
-    <p style="font-size:12px;color:var(--text-light);margin:0 0 10px;line-height:1.5">Daha önce "JSON Yedek (Tam)" ile indirdiğiniz <code>.json</code> dosyasını seçince tüm kayıtları geri getirir — cihaz/tarayıcı değişince veya kayıtlar silinince kurtarma içindir. Mevcut kayıtların üzerine yazmaz; aynı kayıt iki kez eklenmez.</p>
+    <p style="font-size:12px;color:var(--text-light);margin:0 0 10px;line-height:1.5" data-i18n="import.desc">Daha önce "JSON Yedek (Tam)" ile indirdiğiniz <code>.json</code> dosyasını seçince tüm kayıtları geri getirir — cihaz/tarayıcı değişince veya kayıtlar silinince kurtarma içindir. Mevcut kayıtların üzerine yazmaz; aynı kayıt iki kez eklenmez.</p>
     <input type="file" id="json-import" accept=".json" onchange="importJSON(event)" style="font-size:14px">
   </div>
 </div>
 
 <div class="card">
-  <div class="card-header">ℹ️ Bilgi</div>
+  <div class="card-header" data-i18n="card.info">ℹ️ Bilgi</div>
   <div class="card-body" style="font-size:13px;line-height:2;color:var(--text-light)">
     <div><b>NCT:</b> NCT07617103</div>
-    <div><b>Etik:</b> 09.2026.829</div>
-    <div><b>Uygulama:</b> v4.1</div>
-    <div><b>Hedef n:</b> 792 (396A/396B)</div>
+    <div><b><span data-i18n="hdr.ethics">Etik</span>:</b> 09.2026.829</div>
+    <div><b><span data-i18n="info.app">Uygulama</span>:</b> v4.2</div>
+    <div><b><span data-i18n="info.target">Hedef n</span>:</b> 792 (396A/396B)</div>
   </div>
 </div>
 
@@ -592,13 +603,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
 <div id="lab-panel">
   <div id="lab-box">
     <div class="lab-header">
-      🔬 Lab Sonuçları Gir
+      <span data-i18n="lab.header">🔬 Lab Sonuçları Gir</span>
       <button onclick="closeLabPanel()" style="background:none;border:none;color:white;font-size:20px;cursor:pointer">×</button>
     </div>
     <div style="padding:16px">
       <div style="font-size:13px;color:var(--text-light);margin-bottom:12px" id="lab-pt-info"></div>
       <div class="form-group">
-        <label>Hemoliz İndeksi (HI) <span class="req">*</span></label>
+        <label><span data-i18n="lab.hi">Hemoliz İndeksi (HI)</span> <span class="req">*</span></label>
         <div class="hi-options">
           <div class="hi-option hi-0"><input type="radio" name="lab_hi" id="lhi0" value="0"><label for="lhi0">–<br><small>&lt;50</small></label></div>
           <div class="hi-option hi-1"><input type="radio" name="lab_hi" id="lhi1" value="1"><label for="lhi1">+<br><small>50–99</small></label></div>
@@ -609,14 +620,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
         </div>
       </div>
       <div class="form-group">
-        <label>Lab Geçersizlik Nedeni</label>
+        <label data-i18n="lab.invalid">Lab Geçersizlik Nedeni</label>
         <select id="lab_gecersizlik">
-          <option value="">Geçerli</option>
-          <option value="hemoliz">Hemoliz (cihaz red)</option>
-          <option value="lipemik">Lipemik</option>
-          <option value="yetersiz">Yetersiz örnek</option>
-          <option value="teknik">Teknik hata</option>
-          <option value="diger">Diğer</option>
+          <option value="" data-i18n="lab.valid">Geçerli</option>
+          <option value="hemoliz" data-i18n="lab.hemolysis">Hemoliz (cihaz red)</option>
+          <option value="lipemik" data-i18n="lab.lipemic">Lipemik</option>
+          <option value="yetersiz" data-i18n="lab.insufficient">Yetersiz örnek</option>
+          <option value="teknik" data-i18n="lab.technical">Teknik hata</option>
+          <option value="diger" data-i18n="opt.other">Diğer</option>
         </select>
       </div>
       <div class="form-row">
@@ -635,7 +646,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
           <input type="number" id="lab_hgb" step="0.1" placeholder="13.5">
         </div>
         <div class="form-group">
-          <label>Hematokrit (%)</label>
+          <label data-i18n="lab.hct">Hematokrit (%)</label>
           <input type="number" id="lab_hct" step="0.1" placeholder="40.2">
         </div>
       </div>
@@ -658,42 +669,42 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Total Bilirubin (mg/dL)</label>
+          <label data-i18n="lab.tbil">Total Bilirubin (mg/dL)</label>
           <input type="number" id="lab_tbil" step="0.01" placeholder="0.80" oninput="calcIndirek()">
         </div>
         <div class="form-group">
-          <label>Direk Bilirubin (mg/dL)</label>
+          <label data-i18n="lab.dbil">Direk Bilirubin (mg/dL)</label>
           <input type="number" id="lab_dbil" step="0.01" placeholder="0.20" oninput="calcIndirek()">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>İndirek Bilirubin (mg/dL) <span style="font-size:10px;color:var(--text-light);font-weight:400;text-transform:none">— otomatik</span></label>
+          <label><span data-i18n="lab.ibil">İndirek Bilirubin (mg/dL)</span> <span style="font-size:10px;color:var(--text-light);font-weight:400;text-transform:none" data-i18n="lab.autoSuffix">— otomatik</span></label>
           <input type="number" id="lab_ibil" step="0.01" class="input-readonly" readonly placeholder="—">
         </div>
         <div class="form-group"></div>
       </div>
       <div class="form-group">
-        <label>Numune Lab Tarafından Reddedildi mi?</label>
+        <label data-i18n="lab.ret">Numune Lab Tarafından Reddedildi mi?</label>
         <div class="btn-select yes-no">
-          <div><input type="radio" name="lab_ret" id="lr_h" value="0"><label for="lr_h" class="yes-lbl">Hayır</label></div>
-          <div><input type="radio" name="lab_ret" id="lr_e" value="1"><label for="lr_e" class="no-lbl">Evet</label></div>
+          <div><input type="radio" name="lab_ret" id="lr_h" value="0"><label for="lr_h" class="yes-lbl" data-i18n="opt.no">Hayır</label></div>
+          <div><input type="radio" name="lab_ret" id="lr_e" value="1"><label for="lr_e" class="no-lbl" data-i18n="opt.yes">Evet</label></div>
         </div>
       </div>
       <div class="form-group">
-        <label>Tekrar Kan Alımı Gerekti mi? <span style="font-size:10px;color:var(--text-light)">(hemoliz nedeniyle)</span></label>
+        <label><span data-i18n="lab.repeat">Tekrar Kan Alımı Gerekti mi?</span> <span style="font-size:10px;color:var(--text-light)" data-i18n="lab.repeatHint">(hemoliz nedeniyle)</span></label>
         <div class="btn-select yes-no">
-          <div><input type="radio" name="lab_tekrar" id="lt_h" value="0"><label for="lt_h" class="yes-lbl">Hayır</label></div>
-          <div><input type="radio" name="lab_tekrar" id="lt_e" value="1"><label for="lt_e" class="no-lbl">Evet</label></div>
+          <div><input type="radio" name="lab_tekrar" id="lt_h" value="0"><label for="lt_h" class="yes-lbl" data-i18n="opt.no">Hayır</label></div>
+          <div><input type="radio" name="lab_tekrar" id="lt_e" value="1"><label for="lt_e" class="no-lbl" data-i18n="opt.yes">Evet</label></div>
         </div>
       </div>
       <div class="form-group">
-        <label>Not <span style="font-size:10px;color:var(--text-light);font-weight:400;text-transform:none">(opsiyonel — hasta ile ilgili ek bilgi)</span></label>
-        <textarea id="lab_notu" rows="2" placeholder="Örn: numune geç geldi, hemoliz görsel olarak beklendi..." style="resize:vertical;font-size:14px"></textarea>
+        <label><span data-i18n="lab.note">Not</span> <span style="font-size:10px;color:var(--text-light);font-weight:400;text-transform:none" data-i18n="lab.noteHint">(opsiyonel — hasta ile ilgili ek bilgi)</span></label>
+        <textarea id="lab_notu" rows="2" data-i18n-ph="ph.labNote" placeholder="Örn: numune geç geldi, hemoliz görsel olarak beklendi..." style="resize:vertical;font-size:14px"></textarea>
       </div>
       <div style="display:flex;gap:10px;margin-top:8px">
-        <button class="btn btn-gray" style="flex:1" onclick="closeLabPanel()">İptal</button>
-        <button class="btn btn-success" style="flex:2" onclick="saveLabData()">💾 Lab Kaydet</button>
+        <button class="btn btn-gray" style="flex:1" onclick="closeLabPanel()" data-i18n="btn.cancel">İptal</button>
+        <button class="btn btn-success" style="flex:2" onclick="saveLabData()" data-i18n="btn.labSave">💾 Lab Kaydet</button>
       </div>
     </div>
   </div>
@@ -702,21 +713,21 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none
 <!-- MODAL -->
 <div id="modal-overlay">
   <div id="modal-box">
-    <h3 id="modal-title">Emin misiniz?</h3>
-    <p id="modal-msg">Bu işlem geri alınamaz.</p>
+    <h3 id="modal-title" data-i18n="modal.title">Emin misiniz?</h3>
+    <p id="modal-msg" data-i18n="modal.msg">Bu işlem geri alınamaz.</p>
     <div class="modal-btns">
-      <button class="btn btn-gray" style="flex:1" onclick="closeModal()">İptal</button>
-      <button class="btn btn-danger" style="flex:1" id="modal-confirm-btn">Evet</button>
+      <button class="btn btn-gray" style="flex:1" onclick="closeModal()" data-i18n="btn.cancel">İptal</button>
+      <button class="btn btn-danger" style="flex:1" id="modal-confirm-btn" data-i18n="opt.yes">Evet</button>
     </div>
   </div>
 </div>
 
 <!-- YÜZEN TURNİKE KRONOMETRESİ -->
 <div id="fab-sw">
-  <span class="fab-label">⏱️ TURNİKE</span>
+  <span class="fab-label" data-i18n="fab.label">⏱️ TURNİKE</span>
   <span class="fab-time" id="fab-sw-time">00:00</span>
   <button class="fab-btn fab-toggle fab-go" id="fab-sw-toggle" onclick="fabSwToggle()">▶</button>
-  <button class="fab-btn fab-reset" onclick="swReset()" title="Sıfırla">↺</button>
+  <button class="fab-btn fab-reset" onclick="swReset()" data-i18n-title="sw.resetTitle" title="Sıfırla">↺</button>
 </div>
 
 <div id="toast"></div>
@@ -726,6 +737,309 @@ const STORE='tourniED_v3';
 let s={patients:[],nxt:1};
 let labTargetId=null;
 let editId=null;
+
+/* ============================================================
+   DİL / LANGUAGE (TR ⇄ EN)
+   Not: Yalnızca arayüz metinleri çevrilir. Kayıtlarda saklanan
+   değerler (radio/checkbox value'ları, dışa aktarma sütun adları,
+   tarih biçimi) her iki dilde de aynı kalır — böylece TR ve EN
+   kullanan araştırmacıların ürettiği veri tek bir veri seti olur.
+   ============================================================ */
+const LANG_STORE='tourniED_lang';
+let LANG='tr';
+
+const I18N={
+tr:{
+'banner.backup':'⚠️ Yedek zamanı — CSV İndir →',
+'banner.backupN':'⚠️ {n} hasta — yedek için dokunun (CSV indir) →',
+'hdr.ethics':'Etik',
+'enroll.progress':'Kayıt İlerlemesi',
+'enroll.patients':'hasta',
+'group.A':'Grup A','group.B':'Grup B',
+'nav.form':'Yeni Kayıt','nav.list':'Hastalar','nav.export':'Dışa Aktar',
+'edit.mode':'✏️ DÜZENLEME MODU','edit.cancel':'✖ İptal',
+'edit.bannerText':'Hasta #{n} — {name}',
+'sec.form':'📋 Yeni Hasta Kaydı',
+'card.identity':'📋 Kimlik Bilgileri',
+'f.sira_no':'Sıra No','f.dosya_no':'Hasta Dosya No','f.hasta_kodu':'Hasta Kodu',
+'ph.hasta_kodu':'Ör: Mavi Kartal, T-001',
+'note.noRealName':'⚠️ Gerçek isim yazmayın — takma ad veya kod kullanın',
+'f.tarih':'Tarih','f.saat':'Saat',
+'f.hemsire':'Hemşire Deneyimi (yıl)','ph.hemsire':'Örn: 5',
+'f.rand':'Randomizasyon Grubu',
+'rand.pending':'Hasta numarası atanınca belirlenir',
+'rand.A':'🟢 GRUP A — Erken Bırakma','rand.Asub':'Sitrat tüpü dolunca sfingomanometreyi bırak',
+'rand.B':'🔴 GRUP B — Geç Bırakma','rand.Bsub':'K₂EDTA (son tüp) dolana kadar sfingomanometreyi tut',
+'card.adiva':'🩸 A-DIVA Skalası',
+'adiva.q1':'1. Geçmişte zor damar erişimi öyküsü',
+'adiva.d1':'Hastanın daha önce kan alımında veya IV damar yolu açılmasında zorluk yaşandığını beyan etmesi (örn. "benden kan almak çok zor olur").',
+'adiva.a1_0':'Hayır (0)','adiva.a1_1':'Evet (1)',
+'adiva.q2':'2. Ven palpe edilemiyor',
+'adiva.d2':'Antekübital fossada veya ön kolda parmakla dokunarak ven hissedilemiyor.',
+'adiva.a2_0':'Palpe edilir (0)','adiva.a2_1':'Palpe edilemez (1)',
+'adiva.q3':'3. Ven görünmüyor',
+'adiva.d3':'Antekübital fossada veya ön kolda turnike olmadan venin gözle görülmemesi.',
+'adiva.a3_0':'Görünür (0)','adiva.a3_1':'Görünmez (1)',
+'adiva.q4':'4. Ven çapı < 3 mm',
+'adiva.d4':'Gözlem veya palpasyonla venin ince (yaklaşık bir kibrit çöpü kalınlığında veya daha ince) olduğunun belirlenmesi.',
+'adiva.q5':'5. VKİ ≥ 26 kg/m²',
+'adiva.d5':'Boy/kilo girilince VKİ\'ye göre otomatik güncellenir; gerekirse şimdi elle de işaretleyebilirsiniz.',
+'adiva.a5_0':'VKİ < 26 (0)','adiva.a5_1':'VKİ ≥ 26 (1)',
+'adiva.total':'A-DIVA Toplam',
+'adiva.easy':'✅ Kolay erişim','adiva.hard':'⚠️ Zor erişim (≥2)',
+'card.demo':'👤 Demografik',
+'f.yas':'Yaş','f.cinsiyet':'Cinsiyet','opt.female':'Kadın','opt.male':'Erkek',
+'f.boy':'Boy (cm)','f.kilo':'Kilo (kg)','f.vki':'VKİ (kg/m²)','ph.auto':'Otomatik',
+'f.triaj':'Triaj Kategorisi','tri.red':'🔴 Kırmızı','tri.yellow':'🟡 Sarı','tri.green':'🟢 Yeşil',
+'f.sikayet':'Başvuru Şikayeti',
+'sik.chest':'Göğüs ağrısı','sik.abdo':'Karın ağrısı','sik.dysp':'Nefes darlığı',
+'ph.sikayet':'Şikayeti yazın...',
+'card.clinical':'💊 Klinik','f.komorbidite':'Komorbidite',
+'kom.cardiac':'Kalp','kom.renal':'BBY','kom.cancer':'Kanser',
+'ph.komorbidite':'Komorbiditeyi belirtin...',
+'f.antikuag':'Antikoagülan','opt.present':'Var','opt.absent':'Yok',
+'card.turnike':'⏱️ Turnike Süresi','sw.target':'Hedef: ≤ 60 saniye',
+'sw.start':'▶ Başlat','sw.stop':'⏹ Durdur','sw.reset':'↺ Sıfırla','sw.resetTitle':'Sıfırla',
+'f.turnike_sn':'Turnike Süresi (sn)','ph.turnike':'Kronometreden otomatik',
+'fab.label':'⏱️ TURNİKE',
+'card.draw':'🩺 Kan Alma Durumu','draw.yes':'✅ Kan alındı','draw.no':'❌ Alınamadı (CONSORT)',
+'draw.note':'Kan alınamasa da hasta çalışmaya dahildir — CONSORT akış şeması için kayıt tutulur.',
+'card.tests':'🧪 Sipariş Edilen Testler',
+'test.cbc':'HGM','test.biochem':'Biyokimya','test.coag':'Koagülasyon','test.bloodgroup':'Kan grubu','test.urine':'İdrar',
+'card.vas':'⚠️ VAS Ağrı Skoru','f.vas':'Hasta Ağrı Skoru (0–10)',
+'vas.none':'Ağrı yok','vas.worst':'Dayanılmaz ağrı',
+'card.komp':'🩹 Komplikasyon','f.kompVar':'Komplikasyon gelişti mi?','f.kompTur':'Komplikasyon türü',
+'kp.hematoma':'Hematom','kp.nerve':'Sinir hasarı','kp.vasovagal':'Vazovagal','kp.arterial':'Arteriyel ponksiyon',
+'ph.komp':'Açıklama...',
+'card.access':'📍 Damar Erişimi','f.deneme':'Deneme Sayısı','f.bolge':'Kanülasyon Bölgesi',
+'bl.acf':'Antekubital fossa','bl.forearm':'Önkol','bl.hand':'El sırtı','bl.upper':'Dirsek üstü',
+'card.note':'📝 Not','ph.notlar':'Varsa ek notlar...',
+'btn.save':'💾 Kaydet','btn.update':'💾 Güncelle',
+'sec.list':'📊 Hasta Listesi','st.total':'Toplam','st.lab':'Lab Bekliyor',
+'list.hint':'Lab girmek için satıra dokun',
+'sel.on':'☑️ Seç','sel.off':'✖️ Vazgeç','sel.all':'Tümünü seç','sel.del':'🗑 Seçilenleri sil ({n})',
+'del.test':'🧪 Deneme kayıtlarını sil',
+'list.empty':'Henüz kayıt yok','list.emptyPt':'Henüz hasta kaydı yok',
+'list.badgeTest':'🧪 DENEME','list.noFile':'Dosya no yok','list.gr':'Gr.',
+'list.labDone':'Lab ✓','list.labWait':'⏳ Lab bekleniyor','list.sec':'sn',
+'list.testCount':'🧪 {n} deneme kaydı','title.edit':'Düzenle',
+'sec.export':'💾 Dışa Aktarma','card.export':'💾 Veri Dışa Aktarma',
+'btn.xls':'📊 Excel İndir (.xls)','btn.csv':'📥 CSV İndir','btn.json':'📦 JSON Yedek (Tam)',
+'export.colnote':'ℹ️ Sütun başlıkları dil ayarından bağımsız olarak sabittir (<code>sira_no</code>, <code>hi_skala</code>, …) — analiz betikleri her iki dilde de aynı dosya yapısını görür.',
+'card.import':'📤 JSON Geri Yükle',
+'import.desc':'Daha önce "JSON Yedek (Tam)" ile indirdiğiniz <code>.json</code> dosyasını seçince tüm kayıtları geri getirir — cihaz/tarayıcı değişince veya kayıtlar silinince kurtarma içindir. Mevcut kayıtların üzerine yazmaz; aynı kayıt iki kez eklenmez.',
+'card.info':'ℹ️ Bilgi','info.app':'Uygulama','info.target':'Hedef n',
+'lab.header':'🔬 Lab Sonuçları Gir','lab.hi':'Hemoliz İndeksi (HI)',
+'lab.invalid':'Lab Geçersizlik Nedeni','lab.valid':'Geçerli',
+'lab.hemolysis':'Hemoliz (cihaz red)','lab.lipemic':'Lipemik','lab.insufficient':'Yetersiz örnek','lab.technical':'Teknik hata',
+'lab.hct':'Hematokrit (%)',
+'lab.tbil':'Total Bilirubin (mg/dL)','lab.dbil':'Direk Bilirubin (mg/dL)','lab.ibil':'İndirek Bilirubin (mg/dL)',
+'lab.autoSuffix':'— otomatik',
+'lab.ret':'Numune Lab Tarafından Reddedildi mi?',
+'lab.repeat':'Tekrar Kan Alımı Gerekti mi?','lab.repeatHint':'(hemoliz nedeniyle)',
+'lab.note':'Not','lab.noteHint':'(opsiyonel — hasta ile ilgili ek bilgi)',
+'ph.labNote':'Örn: numune geç geldi, hemoliz görsel olarak beklendi...',
+'lab.group':'Grup',
+'btn.cancel':'İptal','btn.labSave':'💾 Lab Kaydet',
+'opt.yes':'Evet','opt.no':'Hayır','opt.other':'Diğer','opt.none':'Yok',
+'modal.title':'Emin misiniz?','modal.msg':'Bu işlem geri alınamaz.',
+'gi.A.title':'GRUP A — Erken Bırakma',
+'gi.A.1':'Tüm tüpleri hazırlayın (sitrat → kan grubu → biyokimya → HGM).',
+'gi.A.2':'Sfingomanometreyi 60 mmHg\'ye şişirin, kan almaya başlayın.',
+'gi.A.3':'<b>Sodyum sitrat tüpü (mavi kapak) tamamen dolunca sfingomanometreyi serbest bırakın.</b>',
+'gi.A.4':'Turnike olmadan kalan tüpleri almaya devam edin.',
+'gi.A.5':'Kronometre: tüp alımı başında çalıştır, sitrat dolunca durdur.',
+'gi.B.title':'GRUP B — Geç Bırakma',
+'gi.B.1':'Tüm tüpleri hazırlayın (sitrat → kan grubu → biyokimya → HGM).',
+'gi.B.2':'Sfingomanometreyi 60 mmHg\'ye şişirin, kan almaya başlayın.',
+'gi.B.3':'<b>Sfingomanometre 60 mmHg\'de TÜM tüpler dolana kadar tutulur.</b>',
+'gi.B.4':'<b>Son tüp K₂EDTA (mor kapak) tamamen dolunca sfingomanometreyi bırakın.</b>',
+'gi.B.5':'Kronometre: tüp alımı başında çalıştır, K₂EDTA dolunca durdur.',
+'val.code':'⚠️ Hasta kodu girilmedi','val.sex':'⚠️ Cinsiyet seçilmedi',
+'val.height':'⚠️ Boy girilmedi','val.weight':'⚠️ Kilo girilmedi',
+'toast.updated':'Hasta #{n} güncellendi ✓','toast.saved':'Hasta #{n} kaydedildi ✓',
+'toast.hiRequired':'HI değeri seçin','toast.labSaved':'#{n} lab kaydedildi ✓',
+'toast.noneSelected':'Hiç kayıt seçilmedi','toast.deletedN':'{n} kayıt silindi',
+'toast.noTest':'Deneme kaydı yok',
+'modal.delTestTitle':'Deneme kayıtları silinsin mi?','modal.delTestMsg':'{n} deneme kaydı kalıcı olarak silinecek.',
+'toast.testDeleted':'Deneme kayıtları silindi','toast.testDeletedReset':'Deneme kayıtları silindi — sıra no 1\'e sıfırlandı',
+'toast.recDeleted':'Kayıt silindi','toast.recNotFound':'Kayıt bulunamadı',
+'toast.dlError':'İndirme hatası: ',
+'toast.onlyTestExport':'Yalnızca deneme kaydı var; dışa aktarılmadı','toast.onlyTest':'Yalnızca deneme kaydı var',
+'toast.noData':'Veri yok','toast.csvReady':'CSV hazır ✓','toast.xlsReady':'Excel hazır ✓','toast.jsonReady':'JSON yedek hazır ✓',
+'err.invalidFormat':'Geçersiz format',
+'modal.importTitle':'JSON Yükle','modal.importMsg':'{n} hasta yüklenecek. Devam?',
+'toast.imported':'Yüklendi ✓','toast.error':'Hata: ',
+'toast.editCancelled':'Düzenleme iptal edildi','toast.editMode':'#{n} düzenleme modu ✏️',
+'file.backup':'yedek'
+},
+en:{
+'banner.backup':'⚠️ Time to back up — Download CSV →',
+'banner.backupN':'⚠️ {n} patients — tap to back up (download CSV) →',
+'hdr.ethics':'Ethics',
+'enroll.progress':'Enrolment Progress',
+'enroll.patients':'patients',
+'group.A':'Group A','group.B':'Group B',
+'nav.form':'New Record','nav.list':'Patients','nav.export':'Export',
+'edit.mode':'✏️ EDIT MODE','edit.cancel':'✖ Cancel',
+'edit.bannerText':'Patient #{n} — {name}',
+'sec.form':'📋 New Patient Record',
+'card.identity':'📋 Identification',
+'f.sira_no':'Sequence No','f.dosya_no':'Patient File No','f.hasta_kodu':'Patient Code',
+'ph.hasta_kodu':'e.g. Blue Eagle, T-001',
+'note.noRealName':'⚠️ Do not enter real names — use a pseudonym or code',
+'f.tarih':'Date','f.saat':'Time',
+'f.hemsire':'Nurse Experience (years)','ph.hemsire':'e.g. 5',
+'f.rand':'Randomisation Group',
+'rand.pending':'Assigned once a patient number is issued',
+'rand.A':'🟢 GROUP A — Early Release','rand.Asub':'Release the sphygmomanometer once the citrate tube is full',
+'rand.B':'🔴 GROUP B — Late Release','rand.Bsub':'Hold the sphygmomanometer until the K₂EDTA (last tube) is full',
+'card.adiva':'🩸 A-DIVA Scale',
+'adiva.q1':'1. History of difficult vascular access',
+'adiva.d1':'The patient reports previous difficulty with blood draws or IV cannulation (e.g. "it is always very hard to get blood from me").',
+'adiva.a1_0':'No (0)','adiva.a1_1':'Yes (1)',
+'adiva.q2':'2. Vein not palpable',
+'adiva.d2':'No vein can be felt by finger palpation in the antecubital fossa or forearm.',
+'adiva.a2_0':'Palpable (0)','adiva.a2_1':'Not palpable (1)',
+'adiva.q3':'3. Vein not visible',
+'adiva.d3':'No vein is visible to the naked eye in the antecubital fossa or forearm without a tourniquet.',
+'adiva.a3_0':'Visible (0)','adiva.a3_1':'Not visible (1)',
+'adiva.q4':'4. Vein diameter < 3 mm',
+'adiva.d4':'The vein is judged thin on inspection or palpation (about the thickness of a matchstick or thinner).',
+'adiva.q5':'5. BMI ≥ 26 kg/m²',
+'adiva.d5':'Updated automatically from BMI once height/weight are entered; you may also set it manually now.',
+'adiva.a5_0':'BMI < 26 (0)','adiva.a5_1':'BMI ≥ 26 (1)',
+'adiva.total':'A-DIVA Total',
+'adiva.easy':'✅ Easy access','adiva.hard':'⚠️ Difficult access (≥2)',
+'card.demo':'👤 Demographics',
+'f.yas':'Age','f.cinsiyet':'Sex','opt.female':'Female','opt.male':'Male',
+'f.boy':'Height (cm)','f.kilo':'Weight (kg)','f.vki':'BMI (kg/m²)','ph.auto':'Automatic',
+'f.triaj':'Triage Category','tri.red':'🔴 Red','tri.yellow':'🟡 Yellow','tri.green':'🟢 Green',
+'f.sikayet':'Presenting Complaint',
+'sik.chest':'Chest pain','sik.abdo':'Abdominal pain','sik.dysp':'Dyspnoea',
+'ph.sikayet':'Type the complaint...',
+'card.clinical':'💊 Clinical','f.komorbidite':'Comorbidity',
+'kom.cardiac':'Cardiac','kom.renal':'Renal','kom.cancer':'Cancer',
+'ph.komorbidite':'Specify the comorbidity...',
+'f.antikuag':'Anticoagulant','opt.present':'Yes','opt.absent':'No',
+'card.turnike':'⏱️ Tourniquet Time','sw.target':'Target: ≤ 60 seconds',
+'sw.start':'▶ Start','sw.stop':'⏹ Stop','sw.reset':'↺ Reset','sw.resetTitle':'Reset',
+'f.turnike_sn':'Tourniquet Time (s)','ph.turnike':'Auto-filled from stopwatch',
+'fab.label':'⏱️ TOURNIQUET',
+'card.draw':'🩺 Blood Draw Status','draw.yes':'✅ Blood drawn','draw.no':'❌ Not drawn (CONSORT)',
+'draw.note':'The patient stays in the study even if no blood is drawn — the record is kept for the CONSORT flow diagram.',
+'card.tests':'🧪 Ordered Tests',
+'test.cbc':'CBC','test.biochem':'Biochemistry','test.coag':'Coagulation','test.bloodgroup':'Blood group','test.urine':'Urine',
+'card.vas':'⚠️ VAS Pain Score','f.vas':'Patient Pain Score (0–10)',
+'vas.none':'No pain','vas.worst':'Worst possible pain',
+'card.komp':'🩹 Complication','f.kompVar':'Did a complication occur?','f.kompTur':'Complication type',
+'kp.hematoma':'Haematoma','kp.nerve':'Nerve injury','kp.vasovagal':'Vasovagal','kp.arterial':'Arterial puncture',
+'ph.komp':'Description...',
+'card.access':'📍 Vascular Access','f.deneme':'Number of Attempts','f.bolge':'Cannulation Site',
+'bl.acf':'Antecubital fossa','bl.forearm':'Forearm','bl.hand':'Dorsum of hand','bl.upper':'Above the elbow',
+'card.note':'📝 Note','ph.notlar':'Additional notes, if any...',
+'btn.save':'💾 Save','btn.update':'💾 Update',
+'sec.list':'📊 Patient List','st.total':'Total','st.lab':'Lab Pending',
+'list.hint':'Tap a row to enter lab results',
+'sel.on':'☑️ Select','sel.off':'✖️ Cancel','sel.all':'Select all','sel.del':'🗑 Delete selected ({n})',
+'del.test':'🧪 Delete practice records',
+'list.empty':'No records yet','list.emptyPt':'No patient records yet',
+'list.badgeTest':'🧪 PRACTICE','list.noFile':'No file no','list.gr':'Gr.',
+'list.labDone':'Lab ✓','list.labWait':'⏳ Lab pending','list.sec':'s',
+'list.testCount':'🧪 {n} practice records','title.edit':'Edit',
+'sec.export':'💾 Export','card.export':'💾 Data Export',
+'btn.xls':'📊 Download Excel (.xls)','btn.csv':'📥 Download CSV','btn.json':'📦 JSON Backup (Full)',
+'export.colnote':'ℹ️ Column headers are fixed regardless of the language setting (<code>sira_no</code>, <code>hi_skala</code>, …) — analysis scripts see the same file structure in both languages.',
+'card.import':'📤 Restore from JSON',
+'import.desc':'Selecting a <code>.json</code> file you previously downloaded with "JSON Backup (Full)" restores every record — it is meant for recovery after a device/browser change or after records are lost. It never overwrites existing records, and no record is added twice.',
+'card.info':'ℹ️ Information','info.app':'App','info.target':'Target n',
+'lab.header':'🔬 Enter Lab Results','lab.hi':'Haemolysis Index (HI)',
+'lab.invalid':'Lab Invalidity Reason','lab.valid':'Valid',
+'lab.hemolysis':'Haemolysis (analyser rejection)','lab.lipemic':'Lipaemic','lab.insufficient':'Insufficient sample','lab.technical':'Technical error',
+'lab.hct':'Haematocrit (%)',
+'lab.tbil':'Total Bilirubin (mg/dL)','lab.dbil':'Direct Bilirubin (mg/dL)','lab.ibil':'Indirect Bilirubin (mg/dL)',
+'lab.autoSuffix':'— automatic',
+'lab.ret':'Was the sample rejected by the lab?',
+'lab.repeat':'Was a repeat blood draw required?','lab.repeatHint':'(due to haemolysis)',
+'lab.note':'Note','lab.noteHint':'(optional — extra information about the patient)',
+'ph.labNote':'e.g. sample arrived late, haemolysis expected on visual inspection...',
+'lab.group':'Group',
+'btn.cancel':'Cancel','btn.labSave':'💾 Save Lab',
+'opt.yes':'Yes','opt.no':'No','opt.other':'Other','opt.none':'None',
+'modal.title':'Are you sure?','modal.msg':'This action cannot be undone.',
+'gi.A.title':'GROUP A — Early Release',
+'gi.A.1':'Prepare all tubes (citrate → blood group → biochemistry → CBC).',
+'gi.A.2':'Inflate the sphygmomanometer to 60 mmHg and start the draw.',
+'gi.A.3':'<b>Release the sphygmomanometer as soon as the sodium citrate tube (blue cap) is completely full.</b>',
+'gi.A.4':'Continue collecting the remaining tubes without a tourniquet.',
+'gi.A.5':'Stopwatch: start it at the beginning of tube collection, stop it when the citrate tube is full.',
+'gi.B.title':'GROUP B — Late Release',
+'gi.B.1':'Prepare all tubes (citrate → blood group → biochemistry → CBC).',
+'gi.B.2':'Inflate the sphygmomanometer to 60 mmHg and start the draw.',
+'gi.B.3':'<b>Keep the sphygmomanometer at 60 mmHg until ALL tubes are full.</b>',
+'gi.B.4':'<b>Release the sphygmomanometer once the last tube, K₂EDTA (purple cap), is completely full.</b>',
+'gi.B.5':'Stopwatch: start it at the beginning of tube collection, stop it when the K₂EDTA tube is full.',
+'val.code':'⚠️ Patient code is missing','val.sex':'⚠️ Sex not selected',
+'val.height':'⚠️ Height is missing','val.weight':'⚠️ Weight is missing',
+'toast.updated':'Patient #{n} updated ✓','toast.saved':'Patient #{n} saved ✓',
+'toast.hiRequired':'Select an HI value','toast.labSaved':'#{n} lab results saved ✓',
+'toast.noneSelected':'No records selected','toast.deletedN':'{n} records deleted',
+'toast.noTest':'No practice records',
+'modal.delTestTitle':'Delete practice records?','modal.delTestMsg':'{n} practice records will be permanently deleted.',
+'toast.testDeleted':'Practice records deleted','toast.testDeletedReset':'Practice records deleted — sequence number reset to 1',
+'toast.recDeleted':'Record deleted','toast.recNotFound':'Record not found',
+'toast.dlError':'Download error: ',
+'toast.onlyTestExport':'Only practice records exist; nothing was exported','toast.onlyTest':'Only practice records exist',
+'toast.noData':'No data','toast.csvReady':'CSV ready ✓','toast.xlsReady':'Excel ready ✓','toast.jsonReady':'JSON backup ready ✓',
+'err.invalidFormat':'Invalid format',
+'modal.importTitle':'Load JSON','modal.importMsg':'{n} patients will be loaded. Continue?',
+'toast.imported':'Loaded ✓','toast.error':'Error: ',
+'toast.editCancelled':'Edit cancelled','toast.editMode':'#{n} edit mode ✏️',
+'file.backup':'backup'
+}};
+
+function t(key,vars){
+  const dict=I18N[LANG]||I18N.tr;
+  let str=(key in dict)?dict[key]:(I18N.tr[key]!==undefined?I18N.tr[key]:key);
+  if(vars)Object.keys(vars).forEach(k=>{str=str.split('{'+k+'}').join(vars[k]);});
+  return str;
+}
+
+function applyLang(){
+  document.documentElement.lang=LANG;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const str=t(el.getAttribute('data-i18n'));
+    if(str.indexOf('<')!==-1)el.innerHTML=str;else el.textContent=str;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{el.placeholder=t(el.getAttribute('data-i18n-ph'));});
+  document.querySelectorAll('[data-i18n-title]').forEach(el=>{el.title=t(el.getAttribute('data-i18n-title'));});
+  const bt=document.getElementById('lang-btn-tr'),be=document.getElementById('lang-btn-en');
+  if(bt)bt.classList.toggle('active',LANG==='tr');
+  if(be)be.classList.toggle('active',LANG==='en');
+  // Dinamik olarak üretilen metinleri yeniden çiz
+  calcADIVA();
+  updateEditBanner();
+  refreshSelectModeLabels();
+  const rd=document.getElementById('rand-display');
+  if(rd&&rd.dataset.group)applyRand(null,rd.dataset.group);
+  else if(!editId&&rd)applyRand(s.nxt);
+  refreshGroupInstr(editId?(s.patients.find(p=>p.id===editId)||{}).grup:null);
+  renderList();
+}
+
+function setLang(lang){
+  if(lang!=='tr'&&lang!=='en')return;
+  LANG=lang;
+  try{localStorage.setItem(LANG_STORE,lang);}catch(e){}
+  applyLang();
+}
+
+function loadLang(){
+  let stored=null;
+  try{stored=localStorage.getItem(LANG_STORE);}catch(e){}
+  if(stored==='tr'||stored==='en')LANG=stored;
+  else LANG=(navigator.language||'tr').toLowerCase().indexOf('tr')===0?'tr':'en';
+}
 
 // --- Offline desteği ---
 // Cache temizleyici kaldırıldı (v3.4). Safari/iOS "Ana Ekrana Ekle" ile
@@ -757,12 +1071,13 @@ function updateEnrollBar(){
   document.getElementById('hdr-n').textContent=total;
 }
 function checkBackup(){
-  const t=s.patients.filter(p=>!p.test_kaydi).length;
+  const n=s.patients.filter(p=>!p.test_kaydi).length;
   const b=document.getElementById('backup-banner');
-  if(t>0&&t%20===0){
-    b.textContent=`⚠️ ${t} hasta — yedek için dokunun (CSV indir) →`;
+  if(n>0&&n%20===0){
+    b.textContent=t('banner.backupN',{n:n});
+    b.removeAttribute('data-i18n'); // sayaçlı metin applyLang tarafından ezilmesin
     b.classList.add('show');
-    setTimeout(()=>b.classList.remove('show'),15000);
+    setTimeout(()=>{b.classList.remove('show');b.setAttribute('data-i18n','banner.backup');b.textContent=t('banner.backup');},15000);
   }
 }
 
@@ -796,10 +1111,10 @@ function toggleKomDiger(cb){
 
 function validateAll(){
   // Yalnızca 4 zorunlu alan — geri kalanı hasta dosyasından sonradan girilebilir
-  if(!v('hasta_adi_soyadi')){toast('⚠️ Hasta kodu girilmedi','error');return false;}
-  if(!document.querySelector('input[name=cinsiyet]:checked')){toast('⚠️ Cinsiyet seçilmedi','error');return false;}
-  if(!v('boy')){toast('⚠️ Boy girilmedi','error');return false;}
-  if(!v('kilo')){toast('⚠️ Kilo girilmedi','error');return false;}
+  if(!v('hasta_adi_soyadi')){toast(t('val.code'),'error');return false;}
+  if(!document.querySelector('input[name=cinsiyet]:checked')){toast(t('val.sex'),'error');return false;}
+  if(!v('boy')){toast(t('val.height'),'error');return false;}
+  if(!v('kilo')){toast(t('val.weight'),'error');return false;}
   return true;
 }
 
@@ -818,12 +1133,12 @@ function calcBMI(){
 }
 
 function calcADIVA(){
-  let t=0;
-  for(let i=1;i<=5;i++){const c=document.querySelector(`input[name=adiva${i}]:checked`);if(c)t+=parseInt(c.value);}
-  document.getElementById('adiva-total').textContent=t;
+  let total=0;
+  for(let i=1;i<=5;i++){const c=document.querySelector(`input[name=adiva${i}]:checked`);if(c)total+=parseInt(c.value);}
+  document.getElementById('adiva-total').textContent=total;
   const r=document.getElementById('adiva-result');
-  if(t>=2){r.textContent='⚠️ Zor erişim (≥2)';r.style.color='var(--accent)';}
-  else{r.textContent='✅ Kolay erişim';r.style.color='var(--green)';}
+  if(total>=2){r.textContent=t('adiva.hard');r.style.color='var(--accent)';}
+  else{r.textContent=t('adiva.easy');r.style.color='var(--green)';}
 }
 
 document.querySelectorAll('input[name=sikayeti]').forEach(r=>{
@@ -837,23 +1152,28 @@ const RAND_LIST=["B","A","B","A","B","A","A","B","A","B","B","A","B","B","A","A"
 
 function assignGroup(n){const i=n-1;return(i>=0&&i<RAND_LIST.length)?RAND_LIST[i]:null;}
 
-function applyRand(n){
-  const g=assignGroup(n);
+function applyRand(n,forcedGroup){
+  const g=forcedGroup||assignGroup(n);
   if(!g)return;
   const d=document.getElementById('rand-display');
-  if(g==='A'){d.style.background='var(--green)';d.innerHTML='🟢 GRUP A — Erken Bırakma<br><span style="font-size:12px;font-weight:400">Sitrat tüpü dolunca sfingomanometreyi bırak</span>';}
-  else{d.style.background='var(--accent)';d.innerHTML='🔴 GRUP B — Geç Bırakma<br><span style="font-size:12px;font-weight:400">K₂EDTA (son tüp) dolana kadar sfingomanometreyi tut</span>';}
+  d.dataset.group=g;
+  d.removeAttribute('data-i18n'); // gruplu metin applyLang tarafından ezilmesin
+  d.style.background=g==='A'?'var(--green)':'var(--accent)';
+  d.innerHTML=`${t('rand.'+g)}<br><span style="font-size:12px;font-weight:400">${t('rand.'+g+'sub')}</span>`;
 }
 
-const gInstr={
-  A:{cls:'group-card-A',title:'GRUP A — Erken Bırakma',steps:['Tüm tüpleri hazırlayın (sitrat → kan grubu → biyokimya → HGM).','Sfingomanometreyi 60 mmHg\'ye şişirin, kan almaya başlayın.','<b>Sodyum sitrat tüpü (mavi kapak) tamamen dolunca sfingomanometreyi serbest bırakın.</b>','Turnike olmadan kalan tüpleri almaya devam edin.','Stopwatch: tüp alımı başında çalıştır, sitrat dolunca durdur.']},
-  B:{cls:'group-card-B',title:'GRUP B — Geç Bırakma',steps:['Tüm tüpleri hazırlayın (sitrat → kan grubu → biyokimya → HGM).','Sfingomanometreyi 60 mmHg\'ye şişirin, kan almaya başlayın.','<b>Sfingomanometre 60 mmHg\'de TÜM tüpler dolana kadar tutulur.</b>','<b>Son tüp K₂EDTA (mor kapak) tamamen dolunca sfingomanometreyi bırakın.</b>','Stopwatch: tüp alımı başında çalıştır, K₂EDTA dolunca durdur.']}
-};
+function groupInstr(g){
+  return{
+    cls:g==='A'?'group-card-A':'group-card-B',
+    title:t('gi.'+g+'.title'),
+    steps:[1,2,3,4,5].map(i=>t('gi.'+g+'.'+i))
+  };
+}
 
-function refreshGroupInstr(){
-  const g=assignGroup(s.nxt);
+function refreshGroupInstr(forcedGroup){
+  const g=forcedGroup||assignGroup(s.nxt);
   if(!g)return;
-  const gi=gInstr[g];
+  const gi=groupInstr(g);
   const html=`<div class="card ${gi.cls}" style="margin-bottom:12px"><div class="card-header">${g==='A'?'🟢':'🔴'} ${gi.title}</div><div style="padding:14px 16px"><ol class="group-steps">${gi.steps.map((st,i)=>`<li><div class="step-num">${i+1}</div><span>${st}</span></li>`).join('')}</ol></div></div>`;
   document.getElementById('group-instr').innerHTML=html;
 }
@@ -886,9 +1206,9 @@ function renderSW(){
 function setSwBtns(){
   document.getElementById('sw-start-btn').disabled=swR;
   document.getElementById('sw-stop-btn').disabled=!swR;
-  const t=document.getElementById('fab-sw-toggle');
-  t.textContent=swR?'⏹':'▶';
-  t.className='fab-btn fab-toggle '+(swR?'fab-stop':'fab-go');
+  const tg=document.getElementById('fab-sw-toggle');
+  tg.textContent=swR?'⏹':'▶';
+  tg.className='fab-btn fab-toggle '+(swR?'fab-stop':'fab-go');
   document.getElementById('fab-sw').classList.toggle('running',swR);
 }
 function swStart(){if(swR)return;swR=true;swI=setInterval(()=>{swS++;renderSW();},1000);setSwBtns();}
@@ -917,7 +1237,7 @@ function savePatient(){
   const bl=document.querySelector('input[name=bolge]:checked');
   const komIds=['dm','htn','kalp','bby','mal','yok','kom_dig'];
   const komVals=komIds.filter(id=>document.getElementById(id).checked).map(id=>{
-    if(id==='kom_dig'){const t=v('komorbidite_diger');return t?'Diğer:'+t:'Diğer';}
+    if(id==='kom_dig'){const kd=v('komorbidite_diger');return kd?'Diğer:'+kd:'Diğer';}
     return document.getElementById(id).value;
   });
   const kom=komVals.join('|');
@@ -968,11 +1288,11 @@ function savePatient(){
     const idx=s.patients.findIndex(p=>p.id===editId);
     if(idx!==-1)s.patients[idx]=pt;
     editId=null;updateEditBanner();save();
-    toast(`Hasta #${pt.sira_no} güncellendi ✓`,'success');
+    toast(t('toast.updated',{n:pt.sira_no}),'success');
     setTimeout(()=>{initForm();scrollToSec('sec-list');},1200);
   }else{
     s.patients.push(pt);s.nxt++;save();
-    toast(`Hasta #${pt.sira_no} kaydedildi ✓`,'success');
+    toast(t('toast.saved',{n:pt.sira_no}),'success');
     setTimeout(()=>{initForm();scrollToSec('sec-form');},1200);
   }
 }
@@ -980,7 +1300,7 @@ function savePatient(){
 function openLabPanel(id){
   const pt=s.patients.find(p=>p.id===id);if(!pt)return;
   labTargetId=id;
-  document.getElementById('lab-pt-info').textContent=`#${pt.sira_no} · ${pt.hasta_adi_soyadi||'—'} · ${pt.hasta_dosya_no||'—'} · Grup ${pt.grup} · ${pt.tarih} ${pt.saat}`;
+  document.getElementById('lab-pt-info').textContent=`#${pt.sira_no} · ${pt.hasta_adi_soyadi||'—'} · ${pt.hasta_dosya_no||'—'} · ${t('lab.group')} ${pt.grup} · ${pt.tarih} ${pt.saat}`;
   ['lhi0','lhi1','lhi2','lhi3','lhi4','lhi5'].forEach(id=>document.getElementById(id).checked=false);
   if(pt.hi_skala!==''){const el=document.getElementById('lhi'+pt.hi_skala);if(el)el.checked=true;}
   sv('lab_gecersizlik',pt.lab_gecersizlik||'');
@@ -998,10 +1318,10 @@ function openLabPanel(id){
 }
 function closeLabPanel(){document.getElementById('lab-panel').style.display='none';labTargetId=null;}
 function calcIndirek(){
-  const t=parseFloat(document.getElementById('lab_tbil').value);
+  const tb=parseFloat(document.getElementById('lab_tbil').value);
   const d=parseFloat(document.getElementById('lab_dbil').value);
-  if(!isNaN(t)&&!isNaN(d)){
-    const ind=Math.max(0,t-d).toFixed(2);
+  if(!isNaN(tb)&&!isNaN(d)){
+    const ind=Math.max(0,tb-d).toFixed(2);
     document.getElementById('lab_ibil').value=ind;
   }else{
     document.getElementById('lab_ibil').value='';
@@ -1009,7 +1329,7 @@ function calcIndirek(){
 }
 function saveLabData(){
   const hi=document.querySelector('input[name=lab_hi]:checked');
-  if(!hi){toast('HI değeri seçin','error');return;}
+  if(!hi){toast(t('toast.hiRequired'),'error');return;}
   const pt=s.patients.find(p=>p.id===labTargetId);if(!pt)return;
   pt.hi_skala=parseInt(hi.value);pt.hi_binary=pt.hi_skala>=1?1:0;
   pt.lab_gecersizlik=v('lab_gecersizlik');
@@ -1024,7 +1344,7 @@ function saveLabData(){
   pt.lab_notu=v('lab_notu');
   pt.lab_girildi=true;
   save();closeLabPanel();renderList();
-  toast(`#${pt.sira_no} lab kaydedildi ✓`,'success');
+  toast(t('toast.labSaved',{n:pt.sira_no}),'success');
 }
 
 let selectMode=false;const selected=new Set();
@@ -1040,45 +1360,53 @@ function renderList(){
   document.getElementById('st-b').textContent=gb;
   document.getElementById('st-lab').textContent=lb;
   document.getElementById('hdr-n').textContent=total;
-  document.getElementById('test-count').textContent=tests.length?`🧪 ${tests.length} deneme kaydı`:'';
+  document.getElementById('test-count').textContent=tests.length?t('list.testCount',{n:tests.length}):'';
   document.getElementById('del-test').style.display=tests.length?'':'none';
   const body=document.getElementById('pt-list-body');
-  if(!s.patients.length){body.innerHTML='<div style="text-align:center;color:var(--text-light);padding:24px">Henüz hasta kaydı yok</div>';return;}
+  if(!s.patients.length){body.innerHTML=`<div style="text-align:center;color:var(--text-light);padding:24px">${t('list.emptyPt')}</div>`;return;}
   const hiL=['–','＋','＋＋','＋＋＋','＋＋＋＋','＋＋＋＋＋'];
   body.innerHTML=[...s.patients].reverse().map(pt=>`
     <div class="pt-row${pt.test_kaydi?' pt-test':''}">
       ${selectMode?`<input type="checkbox" class="pt-check" id="cb-${pt.id}" ${selected.has(pt.id)?'checked':''} onclick="toggleSel(${pt.id})">`:''}
       <div class="pt-num pt-${pt.grup}">${pt.sira_no}</div>
       <div class="pt-info" onclick="${selectMode?`toggleSel(${pt.id})`:`openLabPanel(${pt.id})`}">
-        <div class="pt-id">${pt.hasta_adi_soyadi||'—'} ${pt.test_kaydi?'<span class="test-badge">🧪 DENEME</span>':''} <span style="font-size:11px;color:var(--text-light);font-weight:400">Gr.${pt.grup} · ${pt.hasta_dosya_no||'Dosya no yok'}</span></div>
-        <div class="pt-meta">${pt.tarih} ${pt.saat} · ${pt.turnike_suresi||'?'}sn · A-DIVA:${pt.adiva_toplam} · ${pt.lab_girildi?'Lab ✓':'⏳ Lab bekleniyor'}</div>
+        <div class="pt-id">${pt.hasta_adi_soyadi||'—'} ${pt.test_kaydi?`<span class="test-badge">${t('list.badgeTest')}</span>`:''} <span style="font-size:11px;color:var(--text-light);font-weight:400">${t('list.gr')}${pt.grup} · ${pt.hasta_dosya_no||t('list.noFile')}</span></div>
+        <div class="pt-meta">${pt.tarih} ${pt.saat} · ${pt.turnike_suresi||'?'}${t('list.sec')} · A-DIVA:${pt.adiva_toplam} · ${pt.lab_girildi?t('list.labDone'):t('list.labWait')}</div>
       </div>
       <div class="pt-hi ${pt.lab_girildi?(pt.hi_binary===1?'hi-pos':'hi-neg'):'hi-empty'}">${pt.lab_girildi?(hiL[pt.hi_skala]||'—'):'—'}</div>
-      ${selectMode?'':`<button class="btn btn-sm btn-outline" onclick="openEditForm(${pt.id})" style="min-width:44px;min-height:44px" title="Düzenle">✏️</button><button class="btn btn-sm btn-danger" onclick="deletePt(${pt.id})" style="margin-left:4px;min-width:44px;min-height:44px">🗑</button>`}
+      ${selectMode?'':`<button class="btn btn-sm btn-outline" onclick="openEditForm(${pt.id})" style="min-width:44px;min-height:44px" title="${t('title.edit')}">✏️</button><button class="btn btn-sm btn-danger" onclick="deletePt(${pt.id})" style="margin-left:4px;min-width:44px;min-height:44px">🗑</button>`}
     </div>`).join('');
+}
+function refreshSelectModeLabels(){
+  const btn=document.getElementById('sel-toggle');
+  if(btn){
+    btn.textContent=selectMode?t('sel.off'):t('sel.on');
+    btn.className='btn btn-sm '+(selectMode?'btn-primary':'btn-gray');
+  }
+  updateSelCount();
 }
 function exitSelectMode(){
   selectMode=false;selected.clear();
-  const t=document.getElementById('sel-toggle');
-  t.textContent='☑️ Seç';t.className='btn btn-sm btn-gray';
+  refreshSelectModeLabels();
   document.getElementById('sel-all').style.display='none';
   document.getElementById('sel-del').style.display='none';
 }
 function toggleSelectMode(){
   selectMode=!selectMode;selected.clear();
-  const t=document.getElementById('sel-toggle');
-  t.textContent=selectMode?'✖️ Vazgeç':'☑️ Seç';
-  t.className='btn btn-sm '+(selectMode?'btn-primary':'btn-gray');
+  refreshSelectModeLabels();
   document.getElementById('sel-all').style.display=selectMode?'':'none';
   document.getElementById('sel-del').style.display=selectMode?'':'none';
-  updateSelCount();renderList();
+  renderList();
 }
 function toggleSel(id){
   if(selected.has(id))selected.delete(id);else selected.add(id);
   updateSelCount();
   const cb=document.getElementById('cb-'+id);if(cb)cb.checked=selected.has(id);
 }
-function updateSelCount(){document.getElementById('sel-del').textContent=`🗑 Seçilenleri sil (${selected.size})`;}
+function updateSelCount(){
+  const el=document.getElementById('sel-del');
+  if(el)el.textContent=t('sel.del',{n:selected.size});
+}
 function selectAll(){
   const all=s.patients.map(p=>p.id);
   const allSel=all.length>0&&selected.size===all.length;
@@ -1087,18 +1415,18 @@ function selectAll(){
   updateSelCount();renderList();
 }
 function deleteSelected(){
-  if(!selected.size){toast('Hiç kayıt seçilmedi','error');return;}
+  if(!selected.size){toast(t('toast.noneSelected'),'error');return;}
   const n=selected.size;
   s.patients=s.patients.filter(p=>!selected.has(p.id));
-  exitSelectMode();save();renderList();toast(n+' kayıt silindi','warning');
+  exitSelectMode();save();renderList();toast(t('toast.deletedN',{n:n}),'warning');
 }
 function deleteTestPatients(){
   const tests=s.patients.filter(p=>p.test_kaydi);
-  if(!tests.length){toast('Deneme kaydı yok','error');return;}
-  showModal('Deneme kayıtları silinsin mi?',`${tests.length} deneme kaydı kalıcı olarak silinecek.`,()=>{
+  if(!tests.length){toast(t('toast.noTest'),'error');return;}
+  showModal(t('modal.delTestTitle'),t('modal.delTestMsg',{n:tests.length}),()=>{
     s.patients=s.patients.filter(p=>!p.test_kaydi);
-    let msg='Deneme kayıtları silindi';
-    if(!s.patients.length){s.nxt=1;msg="Deneme kayıtları silindi — sıra no 1'e sıfırlandı";}
+    let msg=t('toast.testDeleted');
+    if(!s.patients.length){s.nxt=1;msg=t('toast.testDeletedReset');}
     exitSelectMode();save();renderList();toast(msg,'warning');
   });
 }
@@ -1107,7 +1435,7 @@ function deletePt(id){
   const before=s.patients.length;
   s.patients=s.patients.filter(p=>String(p.id)!==String(id));
   save();renderList();
-  toast(s.patients.length<before?'Kayıt silindi':'Kayıt bulunamadı','warning');
+  toast(s.patients.length<before?t('toast.recDeleted'):t('toast.recNotFound'),'warning');
 }
 
 async function downloadFile(filename,content,mime){
@@ -1126,32 +1454,32 @@ async function downloadFile(filename,content,mime){
     document.body.appendChild(a);a.click();
     setTimeout(()=>{a.remove();URL.revokeObjectURL(url);},2000);
     return true;
-  }catch(err){toast('İndirme hatası: '+err.message,'error');return false;}
+  }catch(err){toast(t('toast.dlError')+err.message,'error');return false;}
 }
 function exportCSV(){
   const real=s.patients.filter(p=>!p.test_kaydi);
-  if(!real.length){toast(s.patients.length?'Yalnızca deneme kaydı var; dışa aktarılmadı':'Veri yok','error');return;}
+  if(!real.length){toast(s.patients.length?t('toast.onlyTestExport'):t('toast.noData'),'error');return;}
   const cols=['sira_no','hasta_adi_soyadi','hasta_dosya_no','tarih','saat','hemsire_deneyimi','grup','kan_alindi','yas','cinsiyet','boy','kilo','vki','basvuru_sikayeti','triaj','komorbidite','ilac_kullanimi','antikuagulan','adiva1','adiva2','adiva3','adiva4','adiva5','adiva_toplam','adiva_zor','deneme_sayisi','kanulasyon_bolgesi','turnike_suresi','turnike_60sn','siparis_testler','vas','komp_var','komplikasyon','komp_aciklama','hi_skala','hi_binary','lab_gecersizlik','numune_ret','tekrar_kan_alimi','potasyum','ldh','hgb','hematokrit','rbc','alt','ast','tbil','dbil','ibil','notlar','lab_notu'];
   const cell=val=>{const str=String(val??'');return /[",\n\r]/.test(str)?'"'+str.replace(/"/g,'""')+'"':str;};
   const rows=real.map(pt=>cols.map(c=>cell(pt[c])).join(','));
   const csv='﻿'+cols.join(',')+'\n'+rows.join('\n');
   const fn=`TOURNI-ED_${new Date().toLocaleDateString('tr-TR').replace(/\./g,'-')}_n${real.length}.csv`;
-  downloadFile(fn,csv,'text/csv;charset=utf-8').then(ok=>{if(ok){toast('CSV hazır ✓','success');document.getElementById('backup-banner').classList.remove('show');}});
+  downloadFile(fn,csv,'text/csv;charset=utf-8').then(ok=>{if(ok){toast(t('toast.csvReady'),'success');document.getElementById('backup-banner').classList.remove('show');}});
 }
 function exportXLS(){
   const real=s.patients.filter(p=>!p.test_kaydi);
-  if(!real.length){toast(s.patients.length?'Yalnızca deneme kaydı var':'Veri yok','error');return;}
+  if(!real.length){toast(s.patients.length?t('toast.onlyTest'):t('toast.noData'),'error');return;}
   const cols=['sira_no','hasta_adi_soyadi','hasta_dosya_no','tarih','saat','hemsire_deneyimi','grup','kan_alindi','yas','cinsiyet','boy','kilo','vki','basvuru_sikayeti','triaj','komorbidite','ilac_kullanimi','antikuagulan','adiva1','adiva2','adiva3','adiva4','adiva5','adiva_toplam','adiva_zor','deneme_sayisi','kanulasyon_bolgesi','turnike_suresi','turnike_60sn','siparis_testler','vas','komp_var','komplikasyon','komp_aciklama','hi_skala','hi_binary','lab_gecersizlik','numune_ret','tekrar_kan_alimi','potasyum','ldh','hgb','hematokrit','rbc','alt','ast','tbil','dbil','ibil','notlar','lab_notu'];
-  const esc=t=>String(t??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const esc=x=>String(x??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const hdr='<tr>'+cols.map(c=>`<th>${esc(c)}</th>`).join('')+'</tr>';
   const rows=real.map(pt=>'<tr>'+cols.map(c=>`<td>${esc(pt[c])}</td>`).join('')+'</tr>').join('');
   const xls=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>TOURNI-ED</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>${hdr}${rows}</table></body></html>`;
   const fn=`TOURNI-ED_${new Date().toLocaleDateString('tr-TR').replace(/\./g,'-')}_n${real.length}.xls`;
-  downloadFile(fn,xls,'application/vnd.ms-excel;charset=UTF-8').then(ok=>{if(ok)toast('Excel hazır ✓','success');});
+  downloadFile(fn,xls,'application/vnd.ms-excel;charset=UTF-8').then(ok=>{if(ok)toast(t('toast.xlsReady'),'success');});
 }
 function exportJSON(){
-  const fn=`TOURNI-ED_yedek_${new Date().toLocaleDateString('tr-TR').replace(/\./g,'-')}.json`;
-  downloadFile(fn,JSON.stringify(s,null,2),'application/json').then(ok=>{if(ok)toast('JSON yedek hazır ✓','success');});
+  const fn=`TOURNI-ED_${t('file.backup')}_${new Date().toLocaleDateString('tr-TR').replace(/\./g,'-')}.json`;
+  downloadFile(fn,JSON.stringify(s,null,2),'application/json').then(ok=>{if(ok)toast(t('toast.jsonReady'),'success');});
 }
 function importJSON(e){
   const file=e.target.files[0];if(!file)return;
@@ -1159,13 +1487,13 @@ function importJSON(e){
   reader.onload=ev=>{
     try{
       const data=JSON.parse(ev.target.result);
-      if(!data.patients)throw new Error('Geçersiz format');
-      showModal('JSON Yükle',`${data.patients.length} hasta yüklenecek. Devam?`,()=>{
+      if(!data.patients)throw new Error(t('err.invalidFormat'));
+      showModal(t('modal.importTitle'),t('modal.importMsg',{n:data.patients.length}),()=>{
         data.patients.forEach(pt=>{if(!s.patients.find(p=>p.id===pt.id))s.patients.push(pt);});
         s.nxt=calcNxt();
-        save();initForm();toast('Yüklendi ✓','success');
+        save();initForm();toast(t('toast.imported'),'success');
       });
-    }catch(err){toast('Hata: '+err.message,'error');}
+    }catch(err){toast(t('toast.error')+err.message,'error');}
   };
   reader.readAsText(file);
 }
@@ -1193,18 +1521,18 @@ function updateEditBanner(){
     const pt=s.patients.find(p=>p.id===editId);
     if(pt){
       banner.style.display='block';
-      document.getElementById('edit-banner-text').textContent=`Hasta #${pt.sira_no} — ${pt.hasta_adi_soyadi||'—'}`;
-      if(btn)btn.textContent='💾 Güncelle';
+      document.getElementById('edit-banner-text').textContent=t('edit.bannerText',{n:pt.sira_no,name:pt.hasta_adi_soyadi||'—'});
+      if(btn)btn.textContent=t('btn.update');
     }
   }else{
     banner.style.display='none';
-    if(btn)btn.textContent='💾 Kaydet';
+    if(btn)btn.textContent=t('btn.save');
   }
 }
 
 function cancelEdit(){
   editId=null;
-  toast('Düzenleme iptal edildi','');
+  toast(t('toast.editCancelled'),'');
   initForm();
 }
 
@@ -1291,15 +1619,8 @@ function openEditForm(id){
     });
   }
 
-  const d=document.getElementById('rand-display');
-  if(pt.grup==='A'){d.style.background='var(--green)';d.innerHTML='🟢 GRUP A — Erken Bırakma<br><span style="font-size:12px;font-weight:400">Sitrat tüpü dolunca sfingomanometreyi bırak</span>';}
-  else{d.style.background='var(--accent)';d.innerHTML='🔴 GRUP B — Geç Bırakma<br><span style="font-size:12px;font-weight:400">K₂EDTA (son tüp) dolana kadar sfingomanometreyi tut</span>';}
-
-  const gi=gInstr[pt.grup];
-  if(gi){
-    const html=`<div class="card ${gi.cls}" style="margin-bottom:12px"><div class="card-header">${pt.grup==='A'?'🟢':'🔴'} ${gi.title}</div><div style="padding:14px 16px"><ol class="group-steps">${gi.steps.map((st,i)=>`<li><div class="step-num">${i+1}</div><span>${st}</span></li>`).join('')}</ol></div></div>`;
-    document.getElementById('group-instr').innerHTML=html;
-  }
+  applyRand(null,pt.grup);
+  refreshGroupInstr(pt.grup);
 
   updateEditBanner();
   // Stopwatch çalışıyorsa durdur ama sıfırlama — turnike_suresi'ni koru
@@ -1307,7 +1628,7 @@ function openEditForm(id){
   // toggleStopwatch turnike_suresi'ni etkilemiş olabilir; hasta verisini son olarak yaz
   sv('turnike_suresi',pt.turnike_suresi||'');
   scrollToSec('sec-form');
-  toast(`#${pt.sira_no} düzenleme modu ✏️`,'warning');
+  toast(t('toast.editMode',{n:pt.sira_no}),'warning');
 }
 
 function initForm(){
@@ -1325,13 +1646,16 @@ function initForm(){
   sv('komorbidite_diger','');
   document.getElementById('komp-detail').style.display='none';
   document.getElementById('sw-card').style.display='block';
-  document.getElementById('rand-display').style.background='var(--gray)';
-  document.getElementById('rand-display').textContent='Hasta numarası atanınca belirlenir';
+  const rd=document.getElementById('rand-display');
+  rd.style.background='var(--gray)';
+  delete rd.dataset.group;
+  rd.setAttribute('data-i18n','rand.pending');
+  rd.textContent=t('rand.pending');
   calcADIVA();swReset();applyRand(s.nxt);refreshGroupInstr();
   document.getElementById('hdr-n').textContent=s.patients.filter(p=>!p.test_kaydi).length;
 }
 
-load();initForm();checkBackup();updateEnrollBar();
+loadLang();load();applyLang();initForm();checkBackup();updateEnrollBar();
 </script>
 </body>
 </html>

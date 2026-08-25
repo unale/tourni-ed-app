@@ -1,4 +1,4 @@
-const CACHE = 'tourniED-v3';
+const CACHE = 'tourniED-v4.2-i18n';
 const FILES = ['./', './index.html'];
 
 self.addEventListener('install', e => {
