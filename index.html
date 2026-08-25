@@ -773,6 +773,7 @@ tr:{
 'f.hemsire':'Hemşire Deneyimi (yıl)','ph.hemsire':'Örn: 5',
 'f.rand':'Randomizasyon Grubu',
 'rand.pending':'Hasta numarası atanınca belirlenir',
+'rand.exhausted':'⚠️ Tahsis dizisi tamamlandı (792/792) — yeni hasta alınamaz',
 'rand.A':'🟢 GRUP A — Erken Bırakma','rand.Asub':'Sitrat tüpü dolunca sfingomanometreyi bırak',
 'rand.B':'🔴 GRUP B — Geç Bırakma','rand.Bsub':'K₂EDTA (son tüp) dolana kadar sfingomanometreyi tut',
 'card.adiva':'🩸 A-DIVA Skalası',
@@ -862,6 +863,7 @@ tr:{
 'gi.B.5':'Kronometre: tüp alımı başında çalıştır, K₂EDTA dolunca durdur.',
 'val.code':'⚠️ Hasta kodu girilmedi','val.sex':'⚠️ Cinsiyet seçilmedi',
 'val.height':'⚠️ Boy girilmedi','val.weight':'⚠️ Kilo girilmedi',
+'val.exhausted':'⚠️ Tahsis dizisi bitti — kaydedilemez',
 'toast.updated':'Hasta #{n} güncellendi ✓','toast.saved':'Hasta #{n} kaydedildi ✓',
 'toast.hiRequired':'HI değeri seçin','toast.labSaved':'#{n} lab kaydedildi ✓',
 'toast.noneSelected':'Hiç kayıt seçilmedi','toast.deletedN':'{n} kayıt silindi',
@@ -897,6 +899,7 @@ en:{
 'f.hemsire':'Nurse Experience (years)','ph.hemsire':'e.g. 5',
 'f.rand':'Randomisation Group',
 'rand.pending':'Assigned once a patient number is issued',
+'rand.exhausted':'⚠️ Allocation sequence complete (792/792) — no further patients can be enrolled',
 'rand.A':'🟢 GROUP A — Early Release','rand.Asub':'Release the sphygmomanometer once the citrate tube is full',
 'rand.B':'🔴 GROUP B — Late Release','rand.Bsub':'Hold the sphygmomanometer until the K₂EDTA (last tube) is full',
 'card.adiva':'🩸 A-DIVA Scale',
@@ -986,6 +989,7 @@ en:{
 'gi.B.5':'Stopwatch: start it at the beginning of tube collection, stop it when the K₂EDTA tube is full.',
 'val.code':'⚠️ Patient code is missing','val.sex':'⚠️ Sex not selected',
 'val.height':'⚠️ Height is missing','val.weight':'⚠️ Weight is missing',
+'val.exhausted':'⚠️ Allocation sequence exhausted — cannot save',
 'toast.updated':'Patient #{n} updated ✓','toast.saved':'Patient #{n} saved ✓',
 'toast.hiRequired':'Select an HI value','toast.labSaved':'#{n} lab results saved ✓',
 'toast.noneSelected':'No records selected','toast.deletedN':'{n} records deleted',
@@ -1153,14 +1157,21 @@ document.querySelectorAll('input[name=sikayeti]').forEach(r=>{
   });
 });
 
-const RAND_LIST=["B","A","B","A","B","A","A","B","A","B","B","A","B","B","A","A","B","B","A","A","A","A","B","B","A","A","B","B","A","A","B","B","A","B","A","B","B","B","A","A","A","A","B","B","A","A","B","B","A","A","B","B","B","A","B","A","A","B","A","B","B","B","A","A","B","A","A","B","A","B","A","B","B","A","B","A","A","B","B","A","B","A","B","A","A","B","A","B","A","A","B","B","B","A","B","A","A","A","B","B","A","B","A","B","B","B","A","A","A","A","B","B","B","B","A","A","B","B","A","A","A","A","B","B","A","B","B","A","A","B","B","A","B","A","A","B","A","B","B","A","A","B","A","B","B","A","A","B","A","B","A","B","B","B","A","A","B","A","A","B","A","B","B","A","B","A","B","A","A","B","B","A","B","A","B","A","B","A","B","A","B","B","A","A","B","A","B","A","A","B","B","A","B","A","A","B","B","B","A","A","A","B","A","B","A","B","A","B","A","A","B","B","B","A","A","B","A","A","B","B","B","A","A","B","A","B","B","A","A","A","B","B","B","A","A","B","A","A","B","B","A","A","B","B","B","A","A","B","A","A","B","B","A","A","B","B","A","A","B","B","B","A","B","A","B","A","A","B","B","A","A","B","B","A","B","A","B","A","B","A","B","A","B","A","A","B","A","B","A","A","B","B","B","A","B","A","A","A","B","B","B","B","A","A","B","A","A","B","A","A","B","B","A","B","A","B","B","A","B","A","B","B","A","A","A","B","B","A","A","B","B","A","A","A","B","B","B","A","A","B","B","A","A","B","A","B","B","A","B","A","A","B","B","B","A","A","B","A","B","A","A","A","B","B","B","A","A","B","B","A","A","B","A","B","B","A","B","B","A","A","B","A","B","A","A","B","A","B","A","B","A","B","A","B","A","B","B","A","B","A","A","B","B","A","A","B","B","A","B","A","B","A","A","A","B","B","A","B","A","B","B","A","B","A","A","B","A","B","A","B","A","B","A","B","B","A","B","A","B","A","A","B","B","A","B","B","A","A","A","A","B","B","B","A","B","A","B","A","A","B","A","B","B","A","A","A","B","B","A","B","B","A","B","A","B","A","A","B","B","A","B","A","A","B","A","B","A","B","A","B","A","B","A","A","B","B","A","B","A","B","A","B","A","B","B","A","A","B","B","A","A","B","A","B","B","A","A","B","B","A","A","B","B","A","B","A","A","B","B","B","A","A","A","B","A","B","A","A","B","B","A","B","A","B","A","B","A","B","B","A","B","A","A","B","B","A","B","A","B","A","A","B","B","A","B","A","B","A","A","B","B","A","B","A","A","B","A","B","A","B","B","A","B","A","B","B","A","A","A","B","B","A","A","B","A","B","B","A","A","B","A","B","A","B","B","A","A","B","B","A","A","B","A","B","A","B","A","B","A","B","A","B","B","A","A","A","B","B","A","A","B","B","B","B","A","A","B","B","A","A","A","A","B","B","B","A","B","A","B","A","B","A","B","A","A","B","A","A","B","B","B","A","B","A","A","B","B","A","B","B","A","A","A","B","B","A","B","A","B","A","A","B","A","B","A","B","B","A","A","A","B","B","A","B","B","A","B","B","A","A","A","B","B","A","A","A","B","B","A","B","B","A","A","B","A","B","B","B","A","A","A","B","A","B","A","B","A","B","B","A","B","A","A","B","A","B","A","B","B","A","B","B","A","A","A","B","B","A","B","A","B","A","B","A","B","A","B","A","A","B","A","B","B","A","B","A","B","A","B","A","B","A","B","B","A","A","A","B","A","B","B","A","B","A","B","A","A","B","B","A","A","B","B","A","A","B","A","A","B","B"];
+const RAND_LIST=["A","A","B","B","A","A","B","B","A","B","B","A","B","A","A","B","A","B","A","B","B","B","A","A","B","A","B","A","B","A","A","B","B","A","B","A","B","A","B","A","A","A","B","B","B","B","A","A","B","B","A","B","A","A","B","B","B","A","B","A","A","A","A","A","A","B","B","B","A","B","B","B","B","A","A","B","A","A","B","B","A","B","A","A","B","A","B","B","B","B","A","A","A","A","B","A","B","B","A","A","A","B","B","A","A","A","A","B","B","B","B","B","A","A","A","B","A","B","A","A","B","B","A","B","B","A","A","A","B","B","B","A","A","B","A","A","B","B","B","B","A","A","A","B","A","B","A","B","B","A","A","B","B","A","B","A","B","A","A","A","B","B","B","A","B","A","B","B","A","A","A","B","B","B","B","B","A","A","A","A","B","A","A","B","B","A","B","A","A","B","B","B","A","A","A","A","B","B","B","A","A","B","A","B","A","A","B","B","B","A","A","B","A","B","B","A","A","B","A","B","A","B","A","A","A","B","B","B","A","B","A","B","B","B","A","B","A","A","A","A","B","A","B","B","A","B","B","B","A","A","B","A","A","B","A","B","B","A","B","B","A","A","A","A","B","B","B","A","A","B","A","B","A","B","B","A","B","B","A","A","B","A","B","B","A","A","A","B","B","A","A","B","B","B","A","A","A","B","A","B","B","A","A","B","B","A","B","A","A","B","A","B","B","A","B","A","A","B","A","B","B","A","B","A","B","A","A","B","A","A","B","B","B","A","A","A","A","B","B","B","A","A","B","B","A","B","A","B","B","B","A","B","B","A","A","A","A","B","A","B","B","A","B","B","A","A","A","A","B","B","A","B","B","A","A","B","A","B","B","A","A","B","B","A","A","A","B","B","A","B","B","A","B","A","B","A","A","B","A","B","A","A","B","B","A","A","B","A","B","A","B","B","A","A","B","B","A","B","B","B","A","A","B","A","B","A","B","A","A","B","B","A","A","B","B","A","A","A","B","B","B","B","A","A","A","A","B","B","B","A","B","B","A","A","B","B","A","A","B","A","B","A","B","A","A","A","B","B","B","B","A","A","A","A","B","B","A","B","B","B","A","A","B","B","A","A","B","B","A","A","B","A","A","A","B","B","B","A","B","A","B","A","B","A","A","A","B","B","A","A","B","B","A","B","B","A","B","A","B","A","A","B","A","B","B","B","A","A","A","B","B","A","B","B","A","A","B","B","A","A","A","B","B","A","B","B","A","B","A","A","B","A","B","A","B","A","B","A","B","A","B","A","B","A","A","A","B","B","A","B","A","A","B","B","A","B","A","B","B","B","A","A","A","A","A","A","B","B","B","B","A","B","B","A","B","A","B","A","A","B","A","B","B","A","A","A","B","B","B","A","A","A","B","B","B","B","A","A","A","A","B","B","B","A","A","B","A","A","A","B","B","B","B","A","B","A","B","A","B","A","A","B","B","A","A","B","A","B","A","B","B","B","A","A","B","B","A","A","A","A","B","B","A","A","B","B","B","A","A","B","B","A","A","B","B","A","B","A","B","A","B","A","B","A","A","B","B","B","A","A","A","B","B","A","B","A","B","A","A","B","B","B","A","A","B","A","A","B","A","B","B","A","B","A","B","B","B","A","A","B","A","A","B","B","A","A","B","A","B","A","A","A","B","B","A","B","B","A","A","B","A","B","B","A","B","B","A","A","B","B","B","A","A","A","A","B","B","B","A","A","B","A","B","A","B","B","A","A","B","B","A","A","A","B","A","A","B","B","A","B","A","B","A","B","B","A","B","B","B","A","A","A"];
 
 function assignGroup(n){const i=n-1;return(i>=0&&i<RAND_LIST.length)?RAND_LIST[i]:null;}
 
 function applyRand(n,forcedGroup){
   const g=forcedGroup||assignGroup(n);
-  if(!g)return;
   const d=document.getElementById('rand-display');
+  if(!g){
+    // Tahsis dizisi bitti (n > 792). Sessizce boş grup atamak yerine görünür uyar.
+    delete d.dataset.group;
+    d.removeAttribute('data-i18n');
+    d.style.background='var(--accent)';
+    d.textContent=t('rand.exhausted');
+    return;
+  }
   d.dataset.group=g;
   d.removeAttribute('data-i18n'); // gruplu metin applyLang tarafından ezilmesin
   d.style.background=g==='A'?'var(--green)':'var(--accent)';
@@ -1177,7 +1188,7 @@ function groupInstr(g){
 
 function refreshGroupInstr(forcedGroup){
   const g=forcedGroup||assignGroup(s.nxt);
-  if(!g)return;
+  if(!g){document.getElementById('group-instr').innerHTML='';return;}
   const gi=groupInstr(g);
   const html=`<div class="card ${gi.cls}" style="margin-bottom:12px"><div class="card-header">${g==='A'?'🟢':'🔴'} ${gi.title}</div><div style="padding:14px 16px"><ol class="group-steps">${gi.steps.map((st,i)=>`<li><div class="step-num">${i+1}</div><span>${st}</span></li>`).join('')}</ol></div></div>`;
   document.getElementById('group-instr').innerHTML=html;
@@ -1232,6 +1243,8 @@ function savePatient(){
   if(!validateAll())return;
   const origPt=editId?s.patients.find(p=>p.id===editId):null;
   const g=origPt?origPt.grup:assignGroup(s.nxt);
+  // Grupsuz hasta kaydı CONSORT akışını bozar — dizi bitmişse kaydetme
+  if(!g){toast(t('val.exhausted'),'error');return;}
   const sk=document.querySelector('input[name=sikayeti]:checked');
   const skVal=sk?(sk.value==='Diğer'?v('sikayeti_diger'):sk.value):'';
   const cin=document.querySelector('input[name=cinsiyet]:checked');
