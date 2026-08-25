@@ -2,66 +2,90 @@
 
 **Çalışma:** NCT07617103 · Etik kurul: 09.2026.829
 **Belge tarihi:** 25.08.2026
-**Durum:** Hasta alımı başlamadan önce üretilmiştir.
+**Durum:** Hasta alımı başlamadan önce yerleştirilmiştir. Kayıtlı hasta yoktur.
 
 ---
 
-## 1. Yöntem
+## 1. Kaynak
 
-Permüte blok randomizasyonu, **1:1**, **değişken blok boyu**.
+Tahsis dizisi **bu depoda üretilmemiştir.** Araştırmacı tarafından dışarıdan
+sağlanmış, `TOURNIED_analysis_dataset_n792.xlsx` dosyasının `arm` sütunundan
+`patient_id` sırasına göre çıkarılmıştır.
 
-| | |
+Kaynak kayıt: **`randomization/allocation_sequence.csv`** (792 satır,
+`patient_no, arm`). Uygulamadaki `RAND_LIST` bu dosyadan türetilmiştir ve
+`verify_sequence.py` ikisinin aynı kaldığını denetler.
+
+> ### ⚠️ Tamamlanması gereken alanlar
+>
+> Aşağıdakiler araştırmacı tarafından doldurulmalıdır; CONSORT madde 8'in
+> (rastgele sıranın nasıl üretildiği) karşılığıdır ve şu an belgelenmemiştir.
+>
+> - **Üreten kişi / yazılım:** _(ör. R 4.4.1 `blockrand`, SAS PROC PLAN, randomization.com, bağımsız biyoistatistikçi)_
+> - **Yöntem adı:** _(aşağıdaki §3'te gözlenen yapıya bakınız)_
+> - **Seed / üretim parametreleri:** _(kaydedilmediyse bunu yazın)_
+> - **Üretim tarihi:**
+> - **Diziyi üreten kişi hasta alımında görev alıyor mu:** _(evet/hayır)_
+
+## 2. Tanımlar
+
+| Kol | Uygulama |
 |---|---|
-| Tahsis oranı | 1:1 (Grup A : Grup B) |
-| Blok boyları | 4, 6, 8 — her blok için eşit olasılıkla çekilir |
-| Blok içi denge | Her blok tam dengeli (2A/2B, 3A/3B, 4A/4B) |
-| Toplam | 792 tahsis — **396 A / 396 B** |
-| Blok sayısı | 126 (33 adet 4'lük, 42 adet 6'lık, 51 adet 8'lik) |
+| **A — Erken bırakma** | Sodyum sitrat tüpü (mavi kapak) dolunca sfingomanometre bırakılır |
+| **B — Geç bırakma** | Son tüp K₂EDTA (mor kapak) dolana kadar sfingomanometre 60 mmHg'de tutulur |
 
-**Gruplar**
+Tahsis oranı 1:1. Toplam 792 tahsis — **396 A / 396 B**.
 
-- **A — Erken bırakma:** sodyum sitrat tüpü (mavi kapak) dolunca sfingomanometre bırakılır
-- **B — Geç bırakma:** son tüp K₂EDTA (mor kapak) dolana kadar sfingomanometre 60 mmHg'de tutulur
+## 3. Gözlenen yapı
 
-## 2. Üretim ve yeniden üretilebilirlik
+Aşağıdakiler dizinin kendisinden ölçülmüştür; beyan edilen yönteme değil,
+gerçekte gözlenene dayanır.
 
-Dizi `generate_sequence.py` ile üretilmiştir.
-
-| | |
+| Ölçüm | Değer |
 |---|---|
-| PRNG | Python `random.Random` — Mersenne Twister (MT19937) |
-| Seed | `20260825` |
-| Betik | `randomization/generate_sequence.py` |
+| Uzunluk | 792 |
+| Denge | 396 A / 396 B (tam) |
+| Çalışma boyunca en büyük anlık kol farkı | **4** |
+| En uzun aynı-kol serisi | **4** |
+| Sabit 4'lü permüte blok mu | **Hayır** |
+| Dengenin sıfırlandığı nokta sayısı | 158 |
+| Bu noktalar arası mesafe | 2–42 arasında değişiyor (dağılım: 2×86, 4×34, 6×14, 8×5, kalanı 10–42) |
 
-Betik depoda saklanır. Diziyi yeniden üretmek ve doğrulamak için:
+**Yorum.** Dizi permüte blok randomizasyonu **değildir**. Permüte blokta
+kümülatif denge her blok sonunda sıfıra döner, dolayısıyla sıfırlanma
+aralıkları blok boylarına eşit olurdu; burada 42'ye kadar çıkan aralıklar var.
+
+Buna karşılık kol farkı çalışma boyunca hiç 4'ü geçmiyor. Bloksuz (basit)
+randomizasyonda 792 kişide beklenen tipik fark ~28'dir. Yani dizi, azami
+dengesizliği 4 ile sınırlayan **kısıtlı bir randomizasyon** ile üretilmiş
+görünüyor (biased-coin / big-stick / maksimal prosedür ailesi).
+
+Bu, tahsis gizlenmesi açısından sabit bloktan **daha iyidir**: sabit 4'lü
+blokta bir bloğun ilk üç tahsisi bilindiğinde dördüncüsü kesindir; burada
+öyle bir determinist nokta yoktur. Yayında yöntemin adı doğru verilmelidir —
+"blok randomizasyonu" demek bu dizi için yanlış olur.
+
+## 4. Doğrulama
 
 ```bash
-python3 randomization/generate_sequence.py --check
+python3 randomization/verify_sequence.py
 ```
 
-Aynı seed her zaman birebir aynı diziyi verir. Bu, tahsis sırasının sonradan
-seçilmediğini (post hoc değiştirilmediğini) bağımsız olarak doğrulanabilir kılar.
-
-## 3. Doğrulama sonuçları
+Son çalıştırma:
 
 ```
+[OK] index.html ile CSV birebir aynı
 [OK] uzunluk 792
-[OK] 396 A / 396 B
-[OK] blok boyları toplamı = 792
-[OK] blok boyları {4,6,8}
-[OK] her blok içinde 1:1 denge
-[OK] blok sınırlarında kümülatif fark 0
-[OK] anlık en büyük kol farkı ≤ 4  (gözlenen: 4)
-[OK] en uzun aynı-kol serisi ≤ 8   (gözlenen: 6)
+[OK] yalnızca A/B değerleri
+[OK] kollar eşit — A:396 B:396
+[OK] çalışma boyunca kol farkı ≤ 4 — en büyük: 4
+[OK] en uzun aynı-kol serisi ≤ 8 — 4
+[OK] dizi sonunda denge kapanıyor
 ```
 
-Çalışmanın hiçbir anında kollar arası fark 4 hastayı geçmez; erken durdurma veya
-ara analiz yapılsa bile kollar dengeli kalır.
+## 5. Uygulama
 
-## 4. Uygulama
-
-Dizi `index.html` içinde `RAND_LIST` sabiti olarak tutulur. Tahsis, hasta sıra
-numarasına göre belirlenir:
+Dizi `index.html` içinde `RAND_LIST` sabiti olarak tutulur:
 
 ```js
 assignGroup(n) === RAND_LIST[n - 1]
@@ -71,7 +95,7 @@ Sıra numarası yalnızca gerçek hastalar için artar; "deneme kaydı" işaretl
 kayıtlar sıra tüketmez. 792 tahsis tükendiğinde uygulama kaydetmeyi durdurur ve
 görünür uyarı verir — grupsuz hasta kaydı oluşmaz.
 
-## 5. Sınırlılık: tahsis gizlenmesi (allocation concealment)
+## 6. Sınırlılık: tahsis gizlenmesi (allocation concealment)
 
 **Bu dizi gizli değildir.** Uygulama sunucusuz, tek dosyalık bir istemci
 uygulaması olduğu için `RAND_LIST` kullanıcının tarayıcısına iner ve "kaynağı
@@ -85,19 +109,18 @@ Yani hastayı çalışmaya alma kararı verilmeden önce hangi kola düşeceği 
 anlamında gizlenmiş tahsis sağlamaz ve seçim yanlılığına açıktır. Yayında
 sınırlılık olarak bildirilmelidir.
 
-**Kısmi azaltma (uygulanmıştır):** Değişken blok boyu, sabit 4'lük bloğa göre
-tahmini zorlaştırır. Sabit 4'lük blokta bir bloğun ilk üç tahsisi bilindiğinde
-dördüncüsü kesindir; değişken blokta blok sınırının nerede olduğu da bilinmez.
-Bu, listeye hiç bakılmadığı senaryoda anlamlıdır — listeye bakıldığında koruma
-sağlamaz.
-
 **Tam çözüm için gereken:** Tahsisin sunucu tarafında tutulup hasta kaydı
 oluşturulduğunda tek tek verilmesi, ve her tahsisin geri alınamaz biçimde
 tüketilip zaman damgasıyla loglanması.
 
-## 6. Değişiklik geçmişi
+## 7. Değişiklik geçmişi
 
 | Tarih | Değişiklik |
 |---|---|
-| 25.08.2026 | İlk sürüm: 800 tahsis, sabit 4'lük blok, üretim yöntemi belgelenmemiş |
-| 25.08.2026 | Mevcut sürüm: 792 tahsis, değişken blok (4/6/8), seed'li ve betikle yeniden üretilebilir. Hasta alımı başlamadan önce değiştirilmiştir — kayıtlı hasta etkilenmemiştir. |
+| — | İlk sürüm: 800 tahsis, sabit 4'lü permüte blok, üretim yöntemi belgelenmemiş |
+| 25.08.2026 | Araştırmacının sağladığı dizi ile değiştirildi: 792 tahsis, 396A/396B, kısıtlı randomizasyon (azami dengesizlik 4). Hasta alımı başlamadan önce yapılmıştır — kayıtlı hasta etkilenmemiştir. |
+
+**Not.** Yeni dizinin ilk 80 tahsisi eski (800'lük) listeyle birebir aynıdır,
+81. hastadan itibaren ayrışır. Bunun nedeni belgelenmelidir — muhtemelen yeni
+dizi üretilirken eski listenin bir bölümü devralınmıştır. Metodolojik bir sorun
+teşkil etmez, ancak açıklanmadığında hakem sorusu doğurabilir.
